@@ -498,8 +498,27 @@ function renderDiagQuestion(){
 function finishDiagnostic(){
   const score = diagState.correct;
   if(score >= DIAG_QUESTIONS){ renderAppMismatch(); return; }
-  const size = score <= 1 ? 10 : 5;
-  startLesson(size);
+  if(score <= 1){ renderPrereqCheck(); return; }
+  startLesson(5);
+}
+
+function renderPrereqCheck(){
+  const prereqTopic = active.PREREQ[active.topFullTopic];
+  if(!prereqTopic){ startLesson(10); return; }
+  const bank = active.QUESTION_BANK[prereqTopic];
+  const raw = bank[0];
+  const q = { prompt: raw.prompt, options: shuffle(raw.options) };
+  stage.innerHTML = `
+    <div class="skill-chip">Diagnostic — one step underneath first</div>
+    <div class="prompt">Before we build practice on ${active.label.toLowerCase()}, one check on a step underneath it: ${active.TOPIC_TITLE[prereqTopic].toLowerCase()}.</div>
+    <div class="prompt">${q.prompt}</div>
+    ${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`).join("")}
+    <div class="submit-row"><button class="btn" disabled>Submit</button></div>`;
+  wireOptions(stage, (i) => {
+    const o = q.options[i];
+    if(o.ok){ startLesson(10); }
+    else { startLesson(10, prereqTopic, true); }
+  });
 }
 
 function renderAppMismatch(){
@@ -539,10 +558,11 @@ function mkSection(topic, size){
     mastered:false, regenCount:0, inserted:false };
 }
 
-function startLesson(size){
-  const topic = active.topFullTopic;
+function startLesson(size, topicOverride, cameFromPrereqCheck){
+  const topic = topicOverride || active.topFullTopic;
   const sec = mkSection(topic, size);
-  sec.offset = DIAG_QUESTIONS; // skip the questions already used in the diagnostic
+  sec.offset = topicOverride ? (cameFromPrereqCheck ? 1 : 0) : DIAG_QUESTIONS; // skip questions already asked
+  if(topicOverride) sec.inserted = true;
   LS = { firstWrong: diagState.firstWrong, sections: [sec], idx: 0, inProbe:false };
   renderGenerating("Generating your practice…",
     `${size} question${size>1?"s":""} on ${active.TOPIC_TITLE[topic]}`, renderLesson);
