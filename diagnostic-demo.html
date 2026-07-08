@@ -502,9 +502,17 @@ function renderLesson(){
     <div class="theory">${s.alt?th.alt:th.main}</div>
     <div class="steps-box"><b>Steps</b><ol>${th.steps.map(x=>`<li>${x}</li>`).join("")}</ol></div>
     <div class="example"><b>Worked examples</b><ul>${th.examples.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+    <button class="btn ghost" id="regenBtn" style="margin-bottom:18px">I don't understand, regenerate explanation</button>
     <div class="meter">Question <b>${s.q+1}</b> of ${s.needed} · <b>${s.correct}</b> correct so far</div>
     <div id="qarea"></div>`;
+  document.getElementById("regenBtn").onclick = () => regenerateSection(s);
   renderQuestion();
+}
+
+function regenerateSection(s){
+  if(s.regenerated){ renderEscalate("Already tried a different explanation and it's still not clicking."); return; }
+  s.regenerated = true; s.alt = true; s.correct = 0; s.wrong = 0; s.q = 0;
+  renderGenerating("Regenerating this section…", "Same skill, a different explanation this time", renderLesson);
 }
 
 function shuffle(arr){
@@ -584,28 +592,48 @@ function renderMiniProbe(){
     <div class="banner insert">Accuracy on this section is low — one question to decide what to fix.</div>
     <div class="skill-chip">Re-diagnosing inside "${s.title}"</div>
     <div class="prompt" style="font-size:16px">Which feels closest to what's tripping you up on <b>${s.title.toLowerCase()}</b>?</div>
-    ${[
-      "I follow the example, but the practice questions look different",
-      "A smaller step underneath this one is shaky",
-      "Honestly, I'm lost and just guessing"
-    ].map((h,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABC"[i]}</span><span>${h}</span></button>`).join("")}
+    <button class="opt" data-i="0"><span class="key">A</span><span>A smaller step underneath this one is shaky</span></button>
+    <button class="opt" data-i="1"><span class="key">B</span><span>Honestly, I'm lost and just guessing</span></button>
+    <button class="opt" data-i="2"><span class="key">C</span><span>Other</span></button>
+    <textarea class="feedback-input" id="otherText" placeholder="Tell us what's going on..." style="display:none"></textarea>
     <div class="submit-row"><button class="btn" disabled>Submit</button></div>`;
-  const outcomes = ["regen","insert","escalate"];
-  wireOptions(stage, (i) => miniOutcome(outcomes[i]));
+
+  const opts = stage.querySelectorAll(".opt");
+  const otherText = document.getElementById("otherText");
+  const submitBtn = stage.querySelector(".submit-row button");
+  let selected = null;
+
+  const checkEnabled = () => {
+    submitBtn.disabled = selected === 2 ? otherText.value.trim().length === 0 : selected === null;
+  };
+  opts.forEach(btn => {
+    btn.onclick = () => {
+      opts.forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selected = Number(btn.dataset.i);
+      otherText.style.display = selected === 2 ? "block" : "none";
+      checkEnabled();
+    };
+  });
+  otherText.oninput = checkEnabled;
+  submitBtn.onclick = () => {
+    if(selected === null) return;
+    if(selected === 0){ miniOutcome("insert"); }
+    else if(selected === 1){ miniOutcome("escalate"); }
+    else { miniOutcome("other", otherText.value.trim()); }
+  };
 }
 
-function miniOutcome(outcome){
+function miniOutcome(outcome, text){
   const s = LS.sections[LS.idx];
-  if(outcome==="regen"){
-    if(s.regenerated){ renderEscalate("Regenerated once already and accuracy is still below the gate."); return; }
-    s.regenerated=true; s.alt=true; s.correct=0; s.wrong=0; s.q=0;
-    renderGenerating("Regenerating this section…", "Same skill, a different explanation this time", renderLesson);
-  } else if(outcome==="insert"){
+  if(outcome==="insert"){
     const pre = active.PREREQ[s.topic];
     if(!pre){ renderEscalate("No prerequisite left below this — it's the drill floor."); return; }
     const nu = mkSection(pre); nu.inserted=true;
     LS.sections.splice(LS.idx, 0, nu);
     renderGenerating("Adjusting the plan…", `Inserting prerequisite: ${nu.title}`, renderLesson);
+  } else if(outcome==="other"){
+    renderEscalate(text ? `Student note: "${text}"` : "Selected 'Other' with no additional detail.");
   } else {
     renderEscalate("Still not clicking after practice.");
   }
