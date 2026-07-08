@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adaptive Diagnostic — Prototype</title>
+<style>
+  :root{
+    --ink:#1a1d27; --sub:#6b7080; --line:#e6e8ef; --bg:#f4f5f9; --card:#ffffff;
+    --accent:#4f46e5; --accent-soft:#eef0fe;
+    --ok:#0f766e; --ok-soft:#e6f4f2;
+    --warn:#b45309; --warn-soft:#fdf3e3;
+    --bad:#b42318; --bad-soft:#fdeceb;
+    --mut:#9aa0ae;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; padding:32px 20px 64px;}
+  .wrap{max-width:980px; margin:0 auto;}
+  header{margin-bottom:24px;}
+  header h1{font-size:22px; font-weight:700; letter-spacing:-0.01em;}
+  header p{color:var(--sub); font-size:14px; margin-top:4px;}
+  .tag{display:inline-block; font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--accent); background:var(--accent-soft); border-radius:99px; padding:3px 10px; margin-bottom:10px;}
+
+  .cols{display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start;}
+  @media(max-width:840px){.cols{grid-template-columns:1fr;}}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px;}
+
+  .context{border-left:3px solid var(--bad); padding:14px 18px; background:var(--bad-soft); border-radius:10px; margin-bottom:18px; font-size:14px;}
+  .context b{font-weight:600;}
+  .context .ans{color:var(--bad); font-weight:600;}
+
+  .skill-chip{font-size:12px; font-weight:600; color:var(--sub); margin-bottom:6px;}
+  .seed-chip{font-size:11px; color:var(--mut); margin-top:14px;}
+  .prompt{font-size:18px; font-weight:600; margin:10px 0 20px;}
+
+  .opt{display:flex; align-items:center; gap:12px; width:100%; text-align:left; font-size:16px; font-family:inherit; background:var(--card); border:1.5px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px; cursor:pointer; transition:border-color .15s, background .15s;}
+  .opt:hover{border-color:var(--accent); background:var(--accent-soft);}
+  .opt .key{flex:none; width:26px; height:26px; border-radius:7px; background:var(--bg); color:var(--sub); font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+
+  .fr{display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; line-height:1.1; font-size:.85em; margin:0 2px;}
+  .fr b{font-weight:600; border-bottom:1.5px solid currentColor; padding:0 4px;}
+  .fr i{font-style:normal; padding:0 4px;}
+
+  .steps{display:flex; gap:6px; margin-bottom:18px; flex-wrap:wrap;}
+  .step{font-size:12px; font-weight:600; color:var(--sub); background:var(--bg); border-radius:99px; padding:4px 12px;}
+  .step.now{color:#fff; background:var(--accent);}
+
+  .btn{display:inline-block; font-family:inherit; font-size:15px; font-weight:600; color:#fff; background:var(--accent); border:none; border-radius:10px; padding:12px 24px; cursor:pointer;}
+  .btn.ghost{color:var(--accent); background:var(--accent-soft);}
+
+  aside .card{padding:18px 20px;}
+  aside h2{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); margin-bottom:4px;}
+  aside .who{font-size:12px; color:var(--mut); margin-bottom:14px;}
+  .trace-item{border-left:2px solid var(--line); padding:2px 0 14px 14px; position:relative;}
+  .trace-item:last-child{padding-bottom:2px;}
+  .trace-item::before{content:""; position:absolute; left:-5px; top:6px; width:8px; height:8px; border-radius:99px; background:var(--accent);}
+  .trace-item .tq{font-size:12px; font-weight:600; color:var(--ink);}
+  .trace-item .tc{font-size:12px; color:var(--sub); margin:2px 0;}
+  .trace-item .ti{font-size:12.5px; color:var(--ink); background:var(--accent-soft); border-radius:8px; padding:8px 10px; margin-top:6px;}
+  .trace-empty{font-size:13px; color:var(--mut);}
+
+  .diag-cause{display:inline-block; font-size:12px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; border-radius:99px; padding:5px 14px; margin-bottom:14px;}
+  .diag-cause.ok{color:var(--ok); background:var(--ok-soft);}
+  .diag-cause.warn{color:var(--warn); background:var(--warn-soft);}
+  .diag-cause.bad{color:var(--bad); background:var(--bad-soft);}
+  .diag h2{font-size:20px; font-weight:700; margin-bottom:8px;}
+  .diag>p{font-size:14.5px; color:var(--sub); margin-bottom:22px;}
+
+  .ladder{margin-bottom:22px;}
+  .ladder h3, .lesson h3{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); margin-bottom:10px;}
+  .rung{display:flex; align-items:center; gap:10px; font-size:14px; padding:9px 12px; border-radius:9px; margin-bottom:6px; border:1px solid var(--line);}
+  .rung .mark{flex:none; width:22px; height:22px; border-radius:99px; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;}
+  .rung.solid{background:var(--ok-soft); border-color:transparent;}
+  .rung.solid .mark{background:var(--ok); color:#fff;}
+  .rung.broken{background:var(--bad-soft); border-color:var(--bad);}
+  .rung.broken .mark{background:var(--bad); color:#fff;}
+  .rung.blocked{color:var(--mut);}
+  .rung.blocked .mark{background:var(--bg); color:var(--mut);}
+  .rung.assumed{color:var(--sub);}
+  .rung.assumed .mark{background:var(--bg); color:var(--sub);}
+  .rung .note{margin-left:auto; font-size:11.5px; font-weight:600; color:var(--bad);}
+  .rung.solid .note{color:var(--ok);}
+  .rung.assumed .note, .rung.blocked .note{color:var(--mut); font-weight:500;}
+
+  .lesson ol{padding-left:20px;}
+  .lesson li{font-size:14px; margin-bottom:6px;}
+  .lesson .none{font-size:14px; color:var(--sub);}
+
+  footer{margin-top:28px; font-size:12.5px; color:var(--mut); max-width:640px;}
+
+  .gen{display:flex; flex-direction:column; gap:10px; padding:14px 0 8px;}
+  .gen .bar{height:12px; border-radius:6px; background:var(--accent-soft); overflow:hidden; position:relative;}
+  .gen .bar::after{content:""; position:absolute; inset:0; background:var(--accent); opacity:.35; transform:translateX(-100%); animation:sh 1.1s ease-in-out infinite;}
+  @keyframes sh{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
+  .gen .cap{font-size:13px; color:var(--sub); margin-top:4px;}
+
+  .rail{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .rail .r{display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; padding:6px 12px 6px 8px; border-radius:99px; border:1px solid var(--line); color:var(--sub);}
+  .rail .r .d{flex:none; width:19px; height:19px; border-radius:99px; display:flex; align-items:center; justify-content:center; font-size:11px; background:var(--bg);}
+  .rail .r.active{color:var(--accent); border-color:var(--accent); background:var(--accent-soft);}
+  .rail .r.active .d{background:var(--accent); color:#fff;}
+  .rail .r.done{color:var(--ok); border-color:transparent; background:var(--ok-soft);}
+  .rail .r.done .d{background:var(--ok); color:#fff;}
+  .rail .r.locked{opacity:.5;}
+
+  .banner{font-size:13px; font-weight:600; border-radius:9px; padding:10px 13px; margin-bottom:16px;}
+  .banner.regen{color:var(--accent); background:var(--accent-soft);}
+  .banner.insert{color:var(--warn); background:var(--warn-soft);}
+
+  .theory{font-size:15px; margin-bottom:14px;}
+  .example{font-size:14px; background:var(--bg); border-radius:10px; padding:12px 14px; margin-bottom:18px;}
+  .meter{font-size:12.5px; color:var(--sub); margin-bottom:14px;}
+  .meter .pass{color:var(--ok); font-weight:600;}
+  .feedback{font-size:14.5px; font-weight:600; padding:12px 14px; border-radius:9px;}
+  .feedback.good{color:var(--ok); background:var(--ok-soft);}
+  .feedback.hint{color:var(--warn); background:var(--warn-soft);}
+
+  .coach-card{border-left:3px solid var(--warn); background:var(--warn-soft); padding:16px 18px; border-radius:10px;}
+  .coach-card h2{font-size:19px; font-weight:700; margin:6px 0 8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="tag">Prototype · pre-scripted branching</span>
+    <h1>Adaptive Diagnostic</h1>
+    <p>Scenario: Grade 5 student missed an adding-fractions question on this week's test. The diagnostic finds out <em>why</em> in 1–3 probes.</p>
+  </header>
+
+  <div class="cols">
+    <main>
+      <div class="context">
+        <b>Imported from test:</b> Question 14 — <span class="fr"><b>4</b><i>9</i></span> + <span class="fr"><b>7</b><i>12</i></span> &nbsp;·&nbsp; student answered <span class="ans"><span class="fr"><b>11</b><i>21</i></span></span> (added straight across)
+      </div>
+
+      <div class="card" id="stage"></div>
+
+      <footer id="foot">In production every next question is generated live by Claude, conditioned on the exact wrong answer — the distractors are misconception-coded, so each click routes the branch. Here the tree is pre-scripted for demo purposes; probe 2 uses a real seed question from the MobyMax catalog (skill 22168, Grade 5, "Operations with Fractions").</footer>
+    </main>
+
+    <aside>
+      <div class="card">
+        <h2>System reasoning</h2>
+        <div class="who">Visible to the coach — the student never sees this panel.</div>
+        <div id="trace"><div class="trace-empty">Inferences will appear here as the student answers.</div></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const fr = (n,d) => `<span class="fr"><b>${n}</b><i>${d}</i></span>`;
+
+const Q = {
+  p1: {
+    skill: "Probe 1 · Adding fractions, unlike denominators",
+    seed: "Generated variant (production: Claude, seeded by catalog examples)",
+    prompt: `${fr(1,4)} + ${fr(2,3)} = ?`,
+    options: [
+      { h: fr(11,12), infer: "Correct on a fresh version of the same skill — the test miss looks like a slip, not a gap.", go: ["d","careless"] },
+      { h: fr(3,7),   infer: "Added straight across (1+2 over 4+3) — may not know a common denominator is needed. Probing the prerequisite: finding a common denominator.", go: ["q","p2"] },
+      { h: fr(3,12),  infer: "Found the common denominator 12, but kept the original numerators — the equivalent-fractions step broke. Probing that prerequisite.", go: ["q","p3"] },
+      { h: fr(10,12), infer: "Method looks right, arithmetic slightly off — verifying with easier numbers before concluding.", go: ["q","p1b"] }
+    ]
+  },
+  p1b: {
+    skill: "Probe 1b · Same skill, easier numbers",
+    seed: "Generated variant",
+    prompt: `${fr(1,2)} + ${fr(1,3)} = ?`,
+    options: [
+      { h: fr(5,6), infer: "Correct — the earlier off-by-one was an arithmetic slip, not a gap.", go: ["d","careless"] },
+      { h: fr(2,5), infer: "Added straight across this time — the concept is shaky after all. Probing the prerequisite: common denominator.", go: ["q","p2"] },
+      { h: fr(2,6), infer: "Numerators not converted — probing equivalent fractions.", go: ["q","p3"] }
+    ]
+  },
+  p2: {
+    skill: "Probe 2 · Prerequisite: common denominator (LCM)",
+    seed: "Real seed question — MobyMax skill 22168, Grade 5",
+    prompt: `Carrie is adding ${fr(4,9)} and ${fr(7,12)}. She knows her first step is to find equivalent fractions with a common denominator. Which value is the best new denominator?`,
+    options: [
+      { h: "18", infer: "18 is a multiple of 9 but not of 12 — checks only one denominator. Drilling one level deeper: common multiples.", go: ["q","p4"] },
+      { h: "36", infer: "Finds the LCM correctly — this prerequisite is solid. The gap is in the adding-fractions procedure itself.", go: ["d","conceptGap"] },
+      { h: "54", infer: "54 is a multiple of 9 but not of 12 — checks only one denominator. Drilling one level deeper: common multiples.", go: ["q","p4"] },
+      { h: "90", infer: "90 isn't a multiple of either denominator paired — the common-multiple idea is shaky. Drilling deeper.", go: ["q","p4"] }
+    ]
+  },
+  p3: {
+    skill: "Probe 2 · Prerequisite: equivalent fractions",
+    seed: "Generated variant",
+    prompt: `${fr(3,4)} = ${fr("?",12)} &nbsp;— what is the missing numerator?`,
+    options: [
+      { h: "9",  infer: "Equivalence is solid on its own — the gap is applying the conversion inside an addition problem.", go: ["d","applyGap"] },
+      { h: "3",  infer: "Kept the numerator while scaling the denominator — equivalence itself is broken. This is the lesson's starting point.", go: ["d","equivGap"] },
+      { h: "11", infer: "Added the same amount to top and bottom (+8) — additive instead of multiplicative thinking. Equivalence is broken.", go: ["d","equivGap"] },
+      { h: "6",  infer: "Doubled the numerator but tripled the denominator — the scale factor isn't coordinated. Equivalence is broken.", go: ["d","equivGap"] }
+    ]
+  },
+  p4: {
+    skill: "Probe 3 · Prerequisite: common multiples",
+    seed: "Generated variant",
+    prompt: "Which number is a multiple of both 4 and 6?",
+    options: [
+      { h: "12", infer: "Common multiples are solid — the broken skill is specifically finding the least common multiple of two denominators. Base found; lesson starts one level up.", go: ["d","lcmGap"] },
+      { h: "10", infer: "4 + 6 — added instead of finding multiples. The multiples concept itself is broken. Drill floor for this demo.", go: ["d","multiplesGap"] },
+      { h: "8",  infer: "Multiple of 4 only — one list is being checked, not both. Multiples of two numbers is broken.", go: ["d","multiplesGap"] },
+      { h: "18", infer: "Multiple of 6 only — one list is being checked, not both. Multiples of two numbers is broken.", go: ["d","multiplesGap"] }
+    ]
+  }
+};
+
+const CHAIN = ["Adding fractions, unlike denominators", "Equivalent fractions", "Least common multiple", "Multiples of a number"];
+
+const D = {
+  careless: {
+    cause: "Careless error", tone: "ok",
+    title: "No reteach needed",
+    note: "Fresh probes of the same skill were answered correctly. The test miss is logged as a slip; repeated slips this month would trigger a focus check instead of a lesson.",
+    states: ["solid","assumed","assumed","assumed"],
+    lesson: null
+  },
+  conceptGap: {
+    cause: "Concept-level gap", tone: "warn",
+    title: "The procedure itself is unclear",
+    note: "The student finds the LCM correctly, so the prerequisite is solid — but can't use it inside an addition problem. The material was unclear or has been forgotten.",
+    plan: ["convert","addUnlike"],
+    mis: "you found the right common denominator, but the adding steps got tangled.",
+    states: ["broken","assumed","solid","assumed"],
+    lesson: ["When and why denominators must match before adding", "Using the LCM you already know to convert both fractions", "Add the converted numerators, then simplify", "Mixed practice — 6 generated questions, accuracy tracked"]
+  },
+  applyGap: {
+    cause: "Concept-level gap", tone: "warn",
+    title: "Conversion step breaks inside addition",
+    note: "Equivalence is solid in isolation, but the student loses the numerator conversion when it's embedded in an addition problem. The lesson targets that exact step.",
+    plan: ["convert","addUnlike"],
+    mis: "you know equivalent fractions, but the conversion slips once it's inside an addition.",
+    states: ["broken","solid","assumed","assumed"],
+    lesson: ["Equivalent fractions inside an addition problem", "Convert both fractions, tracking each numerator", "Full procedure walkthrough with worked examples", "Practice set — accuracy tracked, re-diagnose if low"]
+  },
+  equivGap: {
+    cause: "Missing prerequisite", tone: "bad",
+    title: "Equivalent fractions is the broken skill",
+    note: "The student can't scale a fraction correctly, so adding unlike fractions can't work no matter how many times it's retaught. The lesson rebuilds from equivalence up.",
+    plan: ["equivalent","convert","addUnlike"],
+    mis: "3/4 turned into 3/12 — the denominator scaled but the numerator didn't follow.",
+    states: ["blocked","broken","assumed","assumed"],
+    lesson: ["What makes fractions equivalent — visual models", "Scaling numerator and denominator together", "Finding a missing numerator", "Re-climb: adding fractions with unlike denominators"]
+  },
+  lcmGap: {
+    cause: "Missing prerequisite", tone: "bad",
+    title: "LCM is the broken skill",
+    note: "Multiples of a single number are solid — the base is found. What breaks is coordinating two lists to find a common multiple. The lesson starts exactly there.",
+    plan: ["commonMultiples","lcm","addUnlike"],
+    mis: "you added straight across, so the piece sizes never matched.",
+    states: ["blocked","assumed","broken","solid"],
+    lesson: ["Common multiples of two numbers — two lists side by side", "Choosing the least one", "LCM as the common denominator", "Re-climb: adding fractions with unlike denominators"]
+  },
+  multiplesGap: {
+    cause: "Missing prerequisite — deep", tone: "bad",
+    title: "Multiples of a number is the broken skill",
+    note: "The gap sits two levels below the test question. This is the drill floor for the demo — production would probe skip-counting next before generating the lesson.",
+    plan: ["multiples","commonMultiples","lcm","addUnlike"],
+    mis: "the common-multiple step broke because single multiples are still shaky.",
+    states: ["blocked","assumed","broken","broken"],
+    lesson: ["Multiples and skip-counting", "Common multiples of two numbers", "Least common multiple", "Re-climb: adding fractions with unlike denominators"]
+  }
+};
+
+let path = [];
+let trace = [];
+
+const stage = document.getElementById("stage");
+const traceEl = document.getElementById("trace");
+
+function renderIntro(){
+  stage.innerHTML = `
+    <div class="skill-chip">Diagnostic ready</div>
+    <div class="prompt">3 quick questions or fewer. Answers route the next probe automatically.</div>
+    <button class="btn" id="start">Start diagnostic</button>`;
+  document.getElementById("start").onclick = () => renderQ("p1");
+}
+
+function renderSteps(current){
+  const labels = path.map(id => Q[id].skill.split("·")[0].trim());
+  if(current) labels.push(current);
+  return `<div class="steps">${labels.map((l,i)=>`<span class="step${i===labels.length-1?" now":""}">${l}</span>`).join("")}</div>`;
+}
+
+function renderQ(id){
+  const q = Q[id];
+  stage.innerHTML = `
+    ${renderSteps(q.skill.split("·")[0].trim())}
+    <div class="skill-chip">${q.skill}</div>
+    <div class="prompt">${q.prompt}</div>
+    ${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`).join("")}
+    <div class="seed-chip">${q.seed}</div>`;
+  stage.querySelectorAll(".opt").forEach(btn => {
+    btn.onclick = () => {
+      const o = q.options[btn.dataset.i];
+      path.push(id);
+      const plain = o.h.replace(/<b>(.*?)<\/b><i>(.*?)<\/i>/g, "$1/$2").replace(/<[^>]*>/g, "");
+      trace.push({ skill: q.skill, chosen: plain, infer: o.infer });
+      renderTrace();
+      o.go[0] === "q" ? renderQ(o.go[1]) : renderDiag(o.go[1]);
+    };
+  });
+}
+
+function renderTrace(){
+  traceEl.innerHTML = trace.map(t => `
+    <div class="trace-item">
+      <div class="tq">${t.skill}</div>
+      <div class="tc">Chose: ${t.chosen}</div>
+      <div class="ti">${t.infer}</div>
+    </div>`).join("");
+}
+
+function renderDiag(id){
+  const d = D[id];
+  const noteFor = (s,i) => {
+    if(s==="broken") return "lesson starts here";
+    if(s==="solid") return "verified solid";
+    if(s==="blocked") return "blocked until base repaired";
+    return "assumed, not probed";
+  };
+  stage.innerHTML = `
+    ${renderSteps("Diagnosis")}
+    <div class="diag">
+      <span class="diag-cause ${d.tone}">${d.cause}</span>
+      <h2>${d.title}</h2>
+      <p>${d.note}</p>
+      <div class="ladder">
+        <h3>Skill ladder</h3>
+        ${CHAIN.map((name,i)=>{
+          const s = d.states[i];
+          const mark = s==="solid" ? "✓" : s==="broken" ? "✕" : s==="blocked" ? "○" : "·";
+          return `<div class="rung ${s}"><span class="mark">${mark}</span><span>${name}</span><span class="note">${noteFor(s,i)}</span></div>`;
+        }).join("")}
+      </div>
+      <div class="lesson">
+        <h3>Generated lesson outline</h3>
+        ${d.lesson ? `<ol>${d.lesson.map(l=>`<li>${l}</li>`).join("")}</ol>` : `<div class="none">None — the miss is logged for pattern tracking, and the student moves on.</div>`}
+      </div>
+      <div style="margin-top:22px; display:flex; gap:10px; flex-wrap:wrap;">
+        ${d.lesson ? `<button class="btn" id="genlesson">Generate lesson →</button>` : ``}
+        <button class="btn ghost" id="again">Run again</button>
+      </div>
+    </div>`;
+  document.getElementById("again").onclick = () => { path=[]; trace=[]; renderTrace(); traceEl.innerHTML='<div class="trace-empty">Inferences will appear here as the student answers.</div>'; renderIntro(); };
+  const gl = document.getElementById("genlesson");
+  if(gl) gl.onclick = () => startLesson(id);
+}
+
+/* ---------- Lesson generation + player ---------- */
+
+const NEED = 3;
+
+const TOPIC_TITLE = {
+  multiples: "Multiples of a number",
+  commonMultiples: "Common multiples of two numbers",
+  lcm: "Least common multiple",
+  equivalent: "Equivalent fractions",
+  convert: "Converting fractions to add",
+  addUnlike: "Adding fractions, unlike denominators"
+};
+
+const PREREQ = { addUnlike:"convert", convert:"lcm", lcm:"commonMultiples", commonMultiples:"multiples", equivalent:"multiples" };
+
+const THEORY = {
+  multiples: {
+    main: "A multiple of a number is what you get by skip-counting it: 6, 12, 18, 24 are the multiples of 6. Every multiple is that number times a whole number.",
+    alt: "Picture a number line and hop in equal jumps — land on 6, 12, 18, 24. Each landing spot is a multiple of 6, and the jump size never changes.",
+    example: "Multiples of 4 are 4, 8, 12, 16, 20 — that's 4×1, 4×2, 4×3, and so on."
+  },
+  commonMultiples: {
+    main: "A common multiple of two numbers appears in <b>both</b> of their multiple lists. Write out each list and look for a number in both.",
+    alt: "Lay two number lines side by side — one hopping by 4, one by 6. Where both land on the same spot (like 12), that's a common multiple.",
+    example: "Multiples of 4: 4, 8, <b>12</b>, 16, 20, <b>24</b>. Multiples of 6: 6, <b>12</b>, 18, <b>24</b>. Shared: 12 and 24."
+  },
+  lcm: {
+    main: "The least common multiple (LCM) is the smallest number in both multiple lists. For fraction denominators, the LCM is the best common denominator.",
+    alt: "From the shared landing spots of two number lines, the LCM is simply the first overlap you reach — the closest one, not the farthest.",
+    example: "For 4 and 6, common multiples are 12 and 24. The least is <b>12</b>, so 12 is the best common denominator for quarters and sixths."
+  },
+  equivalent: {
+    main: "Equivalent fractions name the same amount. To keep the value, multiply top and bottom by the <b>same</b> number: 3/4 = 6/8 = 9/12.",
+    alt: "Shade 3 of 4 parts of a bar. Now slice each part into 3 — you have 12 parts with 9 shaded. Same area, so 3/4 = 9/12.",
+    example: "To write 3/4 with denominator 12: 4×3 = 12, so multiply the top by 3 too → 3×3 = 9. Thus 3/4 = 9/12."
+  },
+  convert: {
+    main: "To add fractions with different denominators, first rewrite each over the common denominator using equivalent fractions — then the pieces are the same size.",
+    alt: "One pizza cut in halves, one in thirds. Re-cut both into sixths and every slice matches, so you can finally count them together.",
+    example: "For 1/4 + 2/3 with denominator 12: 1/4 = 3/12 and 2/3 = 8/12."
+  },
+  addUnlike: {
+    main: "Full recipe: find the common denominator, convert both fractions, add the numerators, keep the denominator, then simplify. Never add the denominators — those are piece sizes.",
+    alt: "Re-cut both fractions into the same size pieces, then just count the shaded pieces (numerators). The piece size (denominator) stays put.",
+    example: "1/4 + 2/3 → 3/12 + 8/12 → add tops: 11/12. The denominator stays 12."
+  }
+};
+
+const QUESTION_BANK = {
+  multiples: [
+    { prompt:"Which number is a multiple of 6?", options:[{h:"18",ok:true},{h:"15"},{h:"20"},{h:"22"}] },
+    { prompt:"The 5th multiple of 3 is…", options:[{h:"15",ok:true},{h:"8"},{h:"18"},{h:"12"}] },
+    { prompt:"Which number is a multiple of 8?", options:[{h:"24",ok:true},{h:"18"},{h:"30"},{h:"20"}] },
+    { prompt:"Which is a multiple of 7?", options:[{h:"21",ok:true},{h:"27"},{h:"12"},{h:"17"}] }
+  ],
+  commonMultiples: [
+    { prompt:"Which number is a multiple of <b>both</b> 4 and 6?", options:[{h:"12",ok:true},{h:"8",hint:"8 is a multiple of 4 only — check the 6 list too."},{h:"18"},{h:"10"}] },
+    { prompt:"A common multiple of 3 and 5 is…", options:[{h:"15",ok:true},{h:"9"},{h:"10"},{h:"12"}] },
+    { prompt:"Which is a common multiple of 2 and 7?", options:[{h:"14",ok:true},{h:"9"},{h:"16"},{h:"12"}] },
+    { prompt:"Which is a multiple of both 6 and 9?", options:[{h:"18",ok:true},{h:"12"},{h:"15"},{h:"21"}] }
+  ],
+  lcm: [
+    { prompt:"The least common multiple of 4 and 6 is…", options:[{h:"12",ok:true},{h:"24",hint:"24 is common, but not the least — look lower."},{h:"10"},{h:"8"}] },
+    { prompt:`Best common denominator for ${fr(4,9)} and ${fr(7,12)}?`, options:[{h:"36",ok:true},{h:"18"},{h:"54"},{h:"108"}] },
+    { prompt:"LCM of 3 and 5?", options:[{h:"15",ok:true},{h:"30"},{h:"8"},{h:"45"}] },
+    { prompt:"Smallest number both 6 and 8 divide into?", options:[{h:"24",ok:true},{h:"48"},{h:"14"},{h:"12"}] }
+  ],
+  equivalent: [
+    { prompt:`${fr(3,4)} = ${fr("?",12)} — the missing numerator is…`, options:[{h:"9",ok:true},{h:"3",hint:"The denominator tripled (4→12) — do the same to the top."},{h:"6"},{h:"11"}] },
+    { prompt:`${fr(2,5)} = ${fr("?",20)} — the missing numerator is…`, options:[{h:"8",ok:true},{h:"2"},{h:"5"},{h:"17"}] },
+    { prompt:`Which fraction equals ${fr(1,2)}?`, options:[{h:fr(4,8),ok:true},{h:fr(2,3)},{h:fr(3,5)},{h:fr(1,3)}] },
+    { prompt:`${fr(6,8)} in simplest form is…`, options:[{h:fr(3,4),ok:true},{h:fr(2,3)},{h:fr(4,6)},{h:fr(6,8)}] }
+  ],
+  convert: [
+    { prompt:`To add ${fr(1,4)} + ${fr(2,3)} over 12: ${fr(1,4)} = ${fr("?",12)}`, options:[{h:"3",ok:true},{h:"1",hint:"Scale the top by the same factor as the bottom (×3)."},{h:"4"},{h:"2"}] },
+    { prompt:`…and ${fr(2,3)} = ${fr("?",12)}`, options:[{h:"8",ok:true},{h:"2"},{h:"6"},{h:"3"}] },
+    { prompt:`To add ${fr(1,2)} + ${fr(1,3)} over 6: ${fr(1,2)} = ${fr("?",6)}`, options:[{h:"3",ok:true},{h:"1"},{h:"2"},{h:"6"}] },
+    { prompt:`${fr(5,6)} written with denominator 12 is…`, options:[{h:fr(10,12),ok:true},{h:fr(5,12)},{h:fr(6,12)},{h:fr(10,6)}] }
+  ],
+  addUnlike: [
+    { prompt:`${fr(1,4)} + ${fr(2,3)} = ?`, options:[{h:fr(11,12),ok:true},{h:fr(3,7),hint:"Adding straight across changes the piece size — convert first."},{h:fr(3,12)},{h:fr(2,7)}] },
+    { prompt:`${fr(1,2)} + ${fr(1,3)} = ?`, options:[{h:fr(5,6),ok:true},{h:fr(2,5)},{h:fr(2,6)},{h:fr(1,6)}] },
+    { prompt:`${fr(2,5)} + ${fr(1,4)} = ?`, options:[{h:fr(13,20),ok:true},{h:fr(3,9)},{h:fr(3,20)},{h:fr(3,5)}] },
+    { prompt:`${fr(3,4)} + ${fr(1,6)} = ?`, options:[{h:fr(11,12),ok:true},{h:fr(4,10)},{h:fr(4,24)},{h:fr(2,5)}] }
+  ]
+};
+
+const MINIPROBE = {
+  options: [
+    { h:"I follow the example, but the practice questions look different", outcome:"regen" },
+    { h:"A smaller step underneath this one is shaky", outcome:"insert" },
+    { h:"Honestly, I'm lost and just guessing", outcome:"escalate" }
+  ]
+};
+
+let LS = null;
+
+function mkSection(topic){
+  return { topic, title:TOPIC_TITLE[topic], correct:0, wrong:0, q:0, mastered:false, regenerated:false, alt:false, inserted:false };
+}
+
+function startLesson(diagId){
+  const d = D[diagId];
+  LS = {
+    diagId, mis:d.mis,
+    firstWrong: (trace[0] && trace[0].chosen) || null,
+    sections: d.plan.map(mkSection),
+    idx: 0, inProbe:false
+  };
+  renderGenerating("Generating lesson from the diagnosis…",
+    `Retrieving seed questions · building ${LS.sections.length} gated sections`, renderLesson);
+}
+
+function renderGenerating(title, cap, cb){
+  stage.innerHTML = `<div class="gen"><div class="skill-chip">${title}</div><div class="bar"></div><div class="bar" style="width:82%"></div><div class="bar" style="width:64%"></div><div class="cap">${cap}</div></div>`;
+  setTimeout(cb, 950);
+}
+
+function railHTML(){
+  return `<div class="rail">${LS.sections.map((s,i)=>{
+    const st = s.mastered ? "done" : i===LS.idx ? "active" : i<LS.idx ? "done" : "locked";
+    const icon = st==="done" ? "✓" : st==="locked" ? "🔒" : (i+1);
+    return `<div class="r ${st}"><span class="d">${icon}</span>${s.title}</div>`;
+  }).join("")}</div>`;
+}
+
+function renderLesson(){
+  const s = LS.sections[LS.idx];
+  const th = THEORY[s.topic];
+  let banner = "";
+  if(s.regenerated) banner = `<div class="banner regen">Regenerated with a different approach — a visual model this time.</div>`;
+  else if(s.inserted) banner = `<div class="banner insert">Plan adjusted — inserted prerequisite: ${s.title}. The ladder grew a rung.</div>`;
+  const confront = (LS.idx===0 && LS.mis)
+    ? `<div class="theory" style="font-weight:600">${LS.firstWrong?`You answered ${LS.firstWrong} — `:""}${LS.mis}</div>` : "";
+  stage.innerHTML = `
+    ${railHTML()}
+    ${banner}
+    <div class="skill-chip">Section ${LS.idx+1} of ${LS.sections.length} · gate: ${NEED} correct to unlock the next</div>
+    <h2 style="font-size:19px;font-weight:700;margin:4px 0 12px">${s.title}</h2>
+    ${confront}
+    <div class="theory">${s.alt?th.alt:th.main}</div>
+    <div class="example"><b>Worked example.</b> ${th.example}</div>
+    <div class="meter">Section accuracy: <b>${s.correct}</b> correct · ${s.wrong} missed · need <span class="pass">${NEED}</span> to master</div>
+    <div id="qarea"></div>`;
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const s = LS.sections[LS.idx];
+  const bank = QUESTION_BANK[s.topic];
+  const q = bank[s.q % bank.length];
+  const qa = document.getElementById("qarea");
+  qa.innerHTML = `
+    <div class="prompt" style="font-size:16px">${q.prompt}</div>
+    ${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`).join("")}`;
+  qa.querySelectorAll(".opt").forEach(b=>{ b.onclick=()=>answer(q.options[b.dataset.i]); });
+}
+
+function updateMeter(){
+  const s = LS.sections[LS.idx];
+  const m = stage.querySelector(".meter");
+  if(m) m.innerHTML = `Section accuracy: <b>${s.correct}</b> correct · ${s.wrong} missed · need <span class="pass">${NEED}</span> to master`;
+}
+
+function answer(opt){
+  const s = LS.sections[LS.idx];
+  s.q++;
+  const qa = document.getElementById("qarea");
+  if(opt.ok){
+    s.correct++; updateMeter();
+    if(s.correct>=NEED){ qa.innerHTML=`<div class="feedback good">Correct — that clears the gate.</div>`; setTimeout(masterSection, 850); return; }
+    qa.innerHTML=`<div class="feedback good">Correct — keep going.</div>`;
+    setTimeout(renderQuestion, 800);
+  } else {
+    s.wrong++; updateMeter();
+    if(s.wrong>=2 && !LS.inProbe){
+      LS.inProbe = true;
+      qa.innerHTML=`<div class="feedback hint">Accuracy dipped — let's check something before continuing.</div>`;
+      setTimeout(renderMiniProbe, 900);
+      return;
+    }
+    qa.innerHTML=`<div class="feedback hint">${opt.hint||"Not quite — try the next one."}</div>`;
+    setTimeout(renderQuestion, 850);
+  }
+}
+
+function masterSection(){
+  const s = LS.sections[LS.idx];
+  s.mastered = true;
+  if(LS.idx >= LS.sections.length-1){ renderLessonDone(); return; }
+  LS.idx++;
+  const ns = LS.sections[LS.idx];
+  renderGenerating("Section mastered · preparing the next one…",
+    `Pre-generated while you worked — ${ns.title}`, renderLesson);
+}
+
+function renderMiniProbe(){
+  const s = LS.sections[LS.idx];
+  stage.innerHTML = `
+    ${railHTML()}
+    <div class="banner insert">Mid-lesson mini-probe — one question to decide what to fix.</div>
+    <div class="skill-chip">Re-diagnosing inside "${s.title}"</div>
+    <div class="prompt" style="font-size:16px">Which feels closest to what's tripping you up on <b>${s.title.toLowerCase()}</b>?</div>
+    ${MINIPROBE.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABC"[i]}</span><span>${o.h}</span></button>`).join("")}
+    <div class="seed-chip">The answer routes the fix — same branching logic as the opening diagnostic.</div>`;
+  stage.querySelectorAll(".opt").forEach(b=>{ b.onclick=()=>miniOutcome(MINIPROBE.options[b.dataset.i]); });
+}
+
+function miniOutcome(opt){
+  LS.inProbe = false;
+  const s = LS.sections[LS.idx];
+  if(opt.outcome==="regen"){
+    if(s.regenerated){ renderEscalate("Regenerated once already and accuracy is still below the gate."); return; }
+    s.regenerated=true; s.alt=true; s.correct=0; s.wrong=0; s.q=0;
+    renderGenerating("Regenerating this section…", "Same skill, different representation — a visual model", renderLesson);
+  } else if(opt.outcome==="insert"){
+    const pre = PREREQ[s.topic];
+    if(!pre){ renderEscalate("No prerequisite left below this — it's the drill floor."); return; }
+    const nu = mkSection(pre); nu.inserted=true;
+    LS.sections.splice(LS.idx, 0, nu);
+    renderGenerating("Adjusting the plan…", `Inserting prerequisite: ${nu.title}`, renderLesson);
+  } else {
+    renderEscalate("Student selected 'lost and guessing'.");
+  }
+}
+
+function backToDiag(){ path=[]; trace=[]; renderTrace(); traceEl.innerHTML='<div class="trace-empty">Inferences will appear here as the student answers.</div>'; renderIntro(); }
+
+function renderLessonDone(){
+  stage.innerHTML = `
+    ${railHTML()}
+    <div class="diag">
+      <span class="diag-cause ok">Lesson complete</span>
+      <h2>Back above the gate — concept rebuilt</h2>
+      <p>All ${LS.sections.length} sections mastered, ending with the re-climb to the original test skill. The final section cleared the ${NEED}-correct gate.</p>
+      <div class="lesson">
+        <h3>What gets reported</h3>
+        <ol>
+          <li>A mastery event per section → TimeBack, so the guide sees the work instead of idle time</li>
+          <li>The confirmed-fixed skill feeds back into the diagnostic history</li>
+          <li>The next test re-checks this skill to confirm it stuck</li>
+        </ol>
+      </div>
+      <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" id="relesson">Replay lesson</button>
+        <button class="btn ghost" id="again2">Back to diagnostic</button>
+      </div>
+    </div>`;
+  document.getElementById("relesson").onclick = () => startLesson(LS.diagId);
+  document.getElementById("again2").onclick = backToDiag;
+}
+
+function renderEscalate(reason){
+  stage.innerHTML = `
+    ${railHTML()}
+    <div class="coach-card">
+      <span class="diag-cause warn">Escalated to coach</span>
+      <h2>Generation reached its limit</h2>
+      <p style="font-size:14px;color:var(--sub);margin-bottom:6px">${reason} Per the escalation cap, the loop hands off to a human rather than regenerating forever.</p>
+      <p style="font-size:13px;color:var(--mut)">The coach receives the full trace: original miss, diagnosis, sections attempted, and where accuracy stalled.</p>
+      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn ghost" id="again3">Back to diagnostic</button>
+      </div>
+    </div>`;
+  document.getElementById("again3").onclick = backToDiag;
+}
+
+renderIntro();
+</script>
+</body>
+</html>

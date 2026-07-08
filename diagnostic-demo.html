@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adaptive Diagnostic — Student Case Study</title>
+<style>
+  :root{
+    --ink:#1a1d27; --sub:#6b7080; --line:#e6e8ef; --bg:#f4f5f9; --card:#ffffff;
+    --accent:#4f46e5; --accent-soft:#eef0fe;
+    --ok:#0f766e; --ok-soft:#e6f4f2;
+    --warn:#b45309; --warn-soft:#fdf3e3;
+    --bad:#b42318; --bad-soft:#fdeceb;
+    --mut:#9aa0ae;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; padding:32px 20px 64px;}
+  .wrap{max-width:980px; margin:0 auto;}
+  header{margin-bottom:20px;}
+  header h1{font-size:22px; font-weight:700; letter-spacing:-0.01em;}
+  header p{color:var(--sub); font-size:14px; margin-top:4px;}
+  .tag{display:inline-block; font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--accent); background:var(--accent-soft); border-radius:99px; padding:3px 10px; margin-bottom:10px;}
+  .profile{border-bottom:1px solid var(--line); padding-bottom:16px; margin-bottom:20px; font-size:13.5px; color:var(--sub);}
+  .profile b{color:var(--ink);}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px;}
+
+  .context{border-left:3px solid var(--warn); padding:14px 18px; background:var(--warn-soft); border-radius:10px; margin-bottom:18px; font-size:14px;}
+
+  .skillcards{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px;}
+  @media(max-width:640px){.skillcards{grid-template-columns:1fr;}}
+  .skillcard{text-align:left; background:var(--card); border:1.5px solid var(--line); border-radius:12px; padding:20px; cursor:pointer; font-family:inherit; transition:border-color .15s, background .15s;}
+  .skillcard:hover{border-color:var(--accent); background:var(--accent-soft);}
+  .skillcard .num{font-size:12px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--bad); margin-bottom:8px;}
+  .skillcard h3{font-size:17px; font-weight:700; margin-bottom:6px;}
+  .skillcard p{font-size:13px; color:var(--sub);}
+
+  .skill-chip{font-size:12px; font-weight:600; color:var(--sub); margin-bottom:6px;}
+  .seed-chip{font-size:11px; color:var(--mut); margin-top:14px;}
+  .prompt{font-size:18px; font-weight:600; margin:10px 0 20px;}
+
+  .opt{display:flex; align-items:center; gap:12px; width:100%; text-align:left; font-size:16px; font-family:inherit; background:var(--card); border:1.5px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px; cursor:pointer; transition:border-color .15s, background .15s;}
+  .opt:hover{border-color:var(--accent); background:var(--accent-soft);}
+  .opt .key{flex:none; width:26px; height:26px; border-radius:7px; background:var(--bg); color:var(--sub); font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  .opt.selected{border-color:var(--accent); background:var(--accent-soft);}
+  .opt.selected .key{background:var(--accent); color:#fff;}
+
+  .steps{display:flex; gap:6px; margin-bottom:18px; flex-wrap:wrap;}
+  .step{font-size:12px; font-weight:600; color:var(--sub); background:var(--bg); border-radius:99px; padding:4px 12px;}
+  .step.now{color:#fff; background:var(--accent);}
+
+  .btn{display:inline-block; font-family:inherit; font-size:15px; font-weight:600; color:#fff; background:var(--accent); border:none; border-radius:10px; padding:12px 24px; cursor:pointer;}
+  .btn.ghost{color:var(--accent); background:var(--accent-soft);}
+  .btn:disabled{opacity:.4; cursor:not-allowed;}
+  .submit-row{margin-top:6px;}
+
+  .diag-cause{display:inline-block; font-size:12px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; border-radius:99px; padding:5px 14px; margin-bottom:14px;}
+  .diag-cause.ok{color:var(--ok); background:var(--ok-soft);}
+  .diag-cause.warn{color:var(--warn); background:var(--warn-soft);}
+  .diag-cause.bad{color:var(--bad); background:var(--bad-soft);}
+  .diag h2{font-size:20px; font-weight:700; margin-bottom:8px;}
+  .diag>p{font-size:14.5px; color:var(--sub); margin-bottom:22px;}
+
+  .ladder{margin-bottom:22px;}
+  .ladder h3, .lesson h3{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); margin-bottom:10px;}
+  .rung{display:flex; align-items:center; gap:10px; font-size:14px; padding:9px 12px; border-radius:9px; margin-bottom:6px; border:1px solid var(--line);}
+  .rung .mark{flex:none; width:22px; height:22px; border-radius:99px; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;}
+  .rung.solid{background:var(--ok-soft); border-color:transparent;}
+  .rung.solid .mark{background:var(--ok); color:#fff;}
+  .rung.broken{background:var(--bad-soft); border-color:var(--bad);}
+  .rung.broken .mark{background:var(--bad); color:#fff;}
+  .rung.blocked{color:var(--mut);}
+  .rung.blocked .mark{background:var(--bg); color:var(--mut);}
+  .rung.assumed{color:var(--sub);}
+  .rung.assumed .mark{background:var(--bg); color:var(--sub);}
+  .rung .note{margin-left:auto; font-size:11.5px; font-weight:600; color:var(--bad);}
+  .rung.solid .note{color:var(--ok);}
+  .rung.assumed .note, .rung.blocked .note{color:var(--mut); font-weight:500;}
+
+  .lesson ol{padding-left:20px;}
+  .lesson li{font-size:14px; margin-bottom:6px;}
+  .lesson .none{font-size:14px; color:var(--sub);}
+
+  footer{margin-top:28px; font-size:12.5px; color:var(--mut); max-width:640px;}
+
+  .gen{display:flex; flex-direction:column; gap:10px; padding:14px 0 8px;}
+  .gen .bar{height:12px; border-radius:6px; background:var(--accent-soft); overflow:hidden; position:relative;}
+  .gen .bar::after{content:""; position:absolute; inset:0; background:var(--accent); opacity:.35; transform:translateX(-100%); animation:sh 1.1s ease-in-out infinite;}
+  @keyframes sh{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
+  .gen .cap{font-size:13px; color:var(--sub); margin-top:4px;}
+
+  .rail{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .rail .r{display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; padding:6px 12px 6px 8px; border-radius:99px; border:1px solid var(--line); color:var(--sub);}
+  .rail .r .d{flex:none; width:19px; height:19px; border-radius:99px; display:flex; align-items:center; justify-content:center; font-size:11px; background:var(--bg);}
+  .rail .r.active{color:var(--accent); border-color:var(--accent); background:var(--accent-soft);}
+  .rail .r.active .d{background:var(--accent); color:#fff;}
+  .rail .r.done{color:var(--ok); border-color:transparent; background:var(--ok-soft);}
+  .rail .r.done .d{background:var(--ok); color:#fff;}
+  .rail .r.locked{opacity:.5;}
+
+  .banner{font-size:13px; font-weight:600; border-radius:9px; padding:10px 13px; margin-bottom:16px;}
+  .banner.regen{color:var(--accent); background:var(--accent-soft);}
+  .banner.insert{color:var(--warn); background:var(--warn-soft);}
+
+  .theory{font-size:15px; margin-bottom:14px;}
+  .example{font-size:14px; background:var(--bg); border-radius:10px; padding:12px 14px; margin-bottom:18px;}
+  .meter{font-size:12.5px; color:var(--sub); margin-bottom:14px;}
+  .meter .pass{color:var(--ok); font-weight:600;}
+  .feedback{font-size:14.5px; font-weight:600; padding:12px 14px; border-radius:9px;}
+  .feedback.good{color:var(--ok); background:var(--ok-soft);}
+  .feedback.hint{color:var(--warn); background:var(--warn-soft);}
+
+  .coach-card{border-left:3px solid var(--warn); background:var(--warn-soft); padding:16px 18px; border-radius:10px;}
+  .coach-card h2{font-size:19px; font-weight:700; margin:6px 0 8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="tag">Prototype · pre-scripted branching, seeded with real data</span>
+    <h1>Adaptive Diagnostic — Student Case Study</h1>
+    <div class="profile">
+      <b>Grade 7 student</b> · working at Grade 5 (2 grades behind)<br>
+      Mastery-blocked at Grade 5 — 9 end-of-course attempts since January, none passed (best 88.9%). Language is his
+      <b>stronger</b> subject overall (74.6% accuracy) — this isn't a difficulty wall, it's a couple of narrow skills
+      stuck for months despite heavy practice.
+    </div>
+  </header>
+
+  <main>
+    <div class="card" id="stage"></div>
+    <footer id="foot">Seeded with a real student's deep-dive data and coaching-guide examples (name and campus removed). In production every next question is generated live by Claude, conditioned on the exact wrong answer — here the branching is pre-scripted for demo purposes, but the content (accuracy figures, wrong-answer patterns, worked examples) is his.</footer>
+  </main>
+</div>
+
+<script>
+/* ---------------------------------------------------------------- */
+/* Scenario data — one real student's two priority skills            */
+/* ---------------------------------------------------------------- */
+
+const SCENARIOS = {
+
+  guideWords: {
+    label: "Guide words",
+    contextHTML: `<b>Imported from MobyMax:</b> "Use Guide Words" — 35 attempts, 175 questions, <b>26.3%</b> accuracy. Got WORSE as practice volume increased in February, not better — a sign the concept was never solidly taught the first time.`,
+    CHAIN: ["Guide words (the tested skill)", "Comparing words past the first match", "Basic alphabetical order"],
+    Q: {
+      p1: {
+        skill: "Probe 1 · Guide words: cat–cow",
+        seed: "Real MobyMax catalog question (skill: Use Guide Words)",
+        prompt: `The guide words at the top of a dictionary page are <b>cat</b> and <b>cow</b>. Which word would be found on this page?`,
+        options: [
+          { h: "cloud", infer: "Correct — falls after 'cat' and before 'cow'. Confirming with a second version before ruling out carelessness, given his history on this skill.", go: ["q","p1b"] },
+          { h: "candle", infer: "'candle' comes before 'cat' — outside the range on the low side. Checking only the starting letters, not the full alphabetical position.", go: ["q","p2"] },
+          { h: "crown", infer: "'crown' comes after 'cow' — outside the range on the high side. Starts with the right letter but past the far boundary.", go: ["q","p2"] },
+          { h: "cabin", infer: "'cabin' comes before 'cat' — outside the range. Matches the first letter of both guide words but no positional check at all.", go: ["q","p2"] }
+        ]
+      },
+      p1b: {
+        skill: "Probe 1b · Guide words: march–mist (confirm)",
+        seed: "Real MobyMax catalog question (skill: Use Guide Words)",
+        prompt: `The guide words are <b>march</b> and <b>mist</b>. Which word would be found on this page?`,
+        options: [
+          { h: "melon", infer: "Correct again — given his flat/worsening history, two clean answers in a row is a genuine signal, not luck. Logging as a slip on the original test question.", go: ["d","careless"] },
+          { h: "maple", infer: "'maple' comes before 'march' — outside the range. Same pattern as the first probe: checks the letter, not the position.", go: ["q","p2"] },
+          { h: "moth", infer: "'moth' comes after 'mist' — outside the range on the high side.", go: ["q","p2"] },
+          { h: "mango", infer: "'mango' comes before 'march' — outside the range.", go: ["q","p2"] }
+        ]
+      },
+      p2: {
+        skill: "Probe 2 · Prerequisite: basic alphabetical order",
+        seed: "Generated variant",
+        prompt: `Which word comes first in alphabetical order — <b>desk</b> or <b>dog</b>?`,
+        options: [
+          { h: "desk", infer: "Correct — basic single-letter alphabetizing holds. Drilling one level deeper: comparing words past the first matching letter.", go: ["q","p3"] },
+          { h: "dog", infer: "Missed the second-letter comparison (e vs o) — basic alphabetical ordering itself is the break. This is the floor for this drill.", go: ["d","prereq_basic"] }
+        ]
+      },
+      p3: {
+        skill: "Probe 3 · Prerequisite: comparing past the first match",
+        seed: "Generated variant",
+        prompt: `Which word comes first alphabetically — <b>climb</b> or <b>cloud</b>?`,
+        options: [
+          { h: "climb", infer: "Correct — can compare letter-by-letter past a shared prefix. So the break isn't in alphabetizing at all — it's specifically in applying the rule to a guide-word RANGE (checking both bounds, not just one).", go: ["d","concept_gap"] },
+          { h: "cloud", infer: "Guessed once the first two letters matched instead of continuing the comparison. Multi-letter comparison is the broken prerequisite.", go: ["d","prereq_deep"] }
+        ]
+      }
+    },
+    D: {
+      careless: {
+        cause: "Careless error", tone: "ok", title: "No reteach needed",
+        note: "Two fresh guide-word questions in a row came back correct. Given how flat/worsening this skill has looked for months, that's worth double-checking again next session — but for this test question, log it as a slip.",
+        states: ["solid","assumed","assumed"], lesson: null
+      },
+      concept_gap: {
+        cause: "Concept-level gap", tone: "warn",
+        title: "Alphabetizing works — applying it to a range doesn't",
+        plan: ["between_range","guide_words_full"],
+        note: "The student alphabetizes correctly, including past a shared prefix — both prerequisite probes came back clean. The break is specifically in applying that skill to a guide-word RANGE: checking a word falls after the first guide word AND before the second, not just one side.",
+        mis: "you can alphabetize letter-by-letter just fine — the break is specifically in checking that a word falls between BOTH guide words, not just one.",
+        states: ["broken","solid","solid"],
+        lesson: ["Checking a word falls between two guide words — both bounds, not one", "Re-climb: full guide-words check with mixed examples"]
+      },
+      prereq_deep: {
+        cause: "Missing prerequisite", tone: "bad",
+        title: "Multi-letter comparison is the break",
+        plan: ["multiletter","between_range","guide_words_full"],
+        note: "Basic single-letter alphabetizing holds, but the student guesses once two words share a starting letter or two instead of continuing the letter-by-letter comparison. That's the base the reteach needs to rebuild from before guide words can work.",
+        mis: "single-letter alphabetizing holds, but comparing past a shared prefix (like climb vs. cloud) is where it breaks.",
+        states: ["blocked","broken","solid"],
+        lesson: ["Comparing words letter-by-letter past the first match", "Checking a word falls between two guide words", "Re-climb: full guide-words check"]
+      },
+      prereq_basic: {
+        cause: "Missing prerequisite — deep", tone: "bad",
+        title: "Basic alphabetical order is the break",
+        plan: ["basic_order","multiletter","between_range","guide_words_full"],
+        note: "This is the floor for this drill — sequencing two words alphabetically at all is where it breaks. Matches the deep-dive's read on this skill: never solidly taught the first time, which is why more MobyMax reps haven't moved it.",
+        mis: "this is the floor for this drill — sequencing two words alphabetically at all is where it breaks.",
+        states: ["blocked","blocked","broken"],
+        lesson: ["Alphabetical order, letter by letter", "Comparing words past the first match", "Checking a word falls between two guide words", "Re-climb: full guide-words check"]
+      }
+    },
+    TOPIC_TITLE: {
+      basic_order: "Alphabetical order, letter by letter",
+      multiletter: "Comparing words past the first match",
+      between_range: "Checking a word falls between two guide words",
+      guide_words_full: "Guide words (re-climb)"
+    },
+    PREREQ: { guide_words_full: "between_range", between_range: "multiletter", multiletter: "basic_order" },
+    THEORY: {
+      basic_order: {
+        main: "Alphabetical order compares words letter by letter until one letter differs. The word with the earlier letter at that position comes first.",
+        alt: "Think of the alphabet as a number line: A is 1, all the way to Z is 26. Compare each letter's 'number' until they differ.",
+        example: "bear vs. bird: both start with 'b', so compare the second letter — 'e' comes before 'i', so bear comes first."
+      },
+      multiletter: {
+        main: "When the first letters match, keep comparing letter by letter — second, then third — until you find one that's different. That letter decides the order.",
+        alt: "Walk down both words together, one letter at a time, like climbing side-by-side ladders. The first rung where they differ tells you which word comes first.",
+        example: "climb vs. cloud: c-l match, then 'i' vs 'o' — i comes before o, so climb comes first."
+      },
+      between_range: {
+        main: "A word belongs on a dictionary page only if it comes AFTER the first guide word AND BEFORE the second — both conditions, not just one.",
+        alt: "Picture the two guide words as fence posts. A word only belongs if it falls inside the fence — checking just one side isn't enough.",
+        example: "Guide words cat–cow: 'candle' comes before 'cat' (outside on one side); 'crown' comes after 'cow' (outside on the other); 'cloud' falls between both — inside the fence."
+      },
+      guide_words_full: {
+        main: "Full guide-words check: compare the target word to BOTH guide words, letter by letter, confirming it falls after the first and before the second.",
+        alt: "Same fence, same walk — putting both skills together: compare letter by letter, then check the word lands inside the fence on both sides.",
+        example: "Guide words march–mist: 'melon' — m matches both, then 'e' vs 'a' (after march) and 'e' vs 'i' (before mist) — melon belongs."
+      }
+    },
+    QUESTION_BANK: {
+      basic_order: [
+        { prompt: "Which word comes first alphabetically: <b>desk</b> or <b>dog</b>?", options: [{h:"desk",ok:true},{h:"dog",hint:"Compare the second letter: e comes before o."}] },
+        { prompt: "Which word comes first alphabetically: <b>bear</b> or <b>bird</b>?", options: [{h:"bear",ok:true},{h:"bird",hint:"Compare the second letter: e comes before i."}] },
+        { prompt: "Which word comes first alphabetically: <b>pear</b> or <b>plum</b>?", options: [{h:"pear",ok:true},{h:"plum",hint:"Compare the second letter: e comes before l."}] }
+      ],
+      multiletter: [
+        { prompt: "Which word comes first alphabetically: <b>climb</b> or <b>cloud</b>?", options: [{h:"climb",ok:true},{h:"cloud",hint:"c-l matches on both — compare the third letter: i comes before o."}] },
+        { prompt: "Which word comes first alphabetically: <b>bread</b> or <b>brake</b>?", options: [{h:"bread",ok:true},{h:"brake",hint:"b-r-a matches on both — compare the fourth letter: e comes before k."}] },
+        { prompt: "Which word comes first alphabetically: <b>trail</b> or <b>train</b>?", options: [{h:"trail",ok:true},{h:"train",hint:"tra matches on both — compare the fourth letter: i comes before n."}] }
+      ],
+      between_range: [
+        { prompt: "Guide words: <b>hat — hut</b>. Does <b>hop</b> belong on this page?", options: [{h:"Yes",ok:true},{h:"No",hint:"h-o falls after 'hat' and before 'hut' — check both letters."}] },
+        { prompt: "Guide words: <b>lamp — lock</b>. Does <b>list</b> belong on this page?", options: [{h:"Yes",ok:true},{h:"No",hint:"l-i falls after 'lamp' and before 'lock' — it belongs."}] },
+        { prompt: "Guide words: <b>pet — pin</b>. Does <b>pit</b> belong on this page?", options: [{h:"No",ok:true},{h:"Yes",hint:"'pit' comes after 'pin' — outside the range on the high side."}] }
+      ],
+      guide_words_full: [
+        { prompt: "Guide words: <b>cat — cow</b>. Which word belongs on this page?", options: [{h:"cloud",ok:true},{h:"candle",hint:"'candle' comes before 'cat' — outside the range."},{h:"crown",hint:"'crown' comes after 'cow' — outside the range."},{h:"cabin",hint:"'cabin' comes before 'cat' — outside the range."}] },
+        { prompt: "Guide words: <b>march — mist</b>. Which word belongs on this page?", options: [{h:"melon",ok:true},{h:"maple",hint:"'maple' comes before 'march' — outside the range."},{h:"moth",hint:"'moth' comes after 'mist' — outside the range."},{h:"mango",hint:"'mango' comes before 'march' — outside the range."}] },
+        { prompt: "Guide words: <b>desk — dust</b>. Which word belongs on this page?", options: [{h:"drum",ok:true},{h:"deer",hint:"'deer' comes before 'desk' — outside the range."},{h:"dye",hint:"'dye' comes after 'dust' — outside the range."},{h:"cart",hint:"'cart' doesn't even start with 'd' — wrong page."}] }
+      ]
+    }
+  },
+
+  verbTense: {
+    label: "Perfect verb tense",
+    contextHTML: `<b>Imported from MobyMax:</b> "Use the Correct Perfect Verb Tense" — his lowest skill at <b>22.9%</b>, part of a 6-skill verb-tense cluster flat at 37–52% for five straight months despite heavy practice.`,
+    CHAIN: ["Perfect verb tense (the tested skill)", "Past participle forms", "Placing events on a timeline"],
+    Q: {
+      p1: {
+        skill: "Probe 1 · She ___ her homework already",
+        seed: "Based on his Language Coaching Guide worked example",
+        prompt: `Choose the correct verb form. She ___ her homework already, so she can watch a movie now.`,
+        options: [
+          { h: "has finished", infer: "Correct — present perfect. Confirming with a second version before ruling out carelessness, given five months of flat accuracy on this cluster.", go: ["q","p1b"] },
+          { h: "finish", infer: "Base form — skips the has/have + participle construction entirely.", go: ["q","p2"] },
+          { h: "finished", infer: "Simple past — misses the 'already, relevant now' signal that calls for present perfect.", go: ["q","p2"] },
+          { h: "will finish", infer: "Future tense — misreads the timing; the homework is already done.", go: ["q","p2"] }
+        ]
+      },
+      p1b: {
+        skill: "Probe 1b · By the time the bell rang (confirm)",
+        seed: "Generated variant",
+        prompt: `By the time the bell rang, the class ___ the entire chapter.`,
+        options: [
+          { h: "had read", infer: "Correct again — given five months of flat data, two clean answers in a row is a real signal. Logging as a slip on the original test question.", go: ["d","careless"] },
+          { h: "read", infer: "Simple past — doesn't show the reading finished BEFORE the bell rang.", go: ["q","p2"] },
+          { h: "has read", infer: "Present perfect doesn't fit here — this needs 'had' for a past-before-past relationship.", go: ["q","p2"] },
+          { h: "will read", infer: "Future tense, but the bell has already rung.", go: ["q","p2"] }
+        ]
+      },
+      p2: {
+        skill: "Probe 2 · Prerequisite: placing events on a timeline",
+        seed: "Generated variant",
+        prompt: `Which sentence describes something that happened BEFORE another past event?`,
+        options: [
+          { h: "I had already eaten dinner when she arrived.", infer: "Correct — can identify a past-before-past relationship conceptually. Drilling one level deeper: the past participle FORM itself.", go: ["q","p3"] },
+          { h: "I ate dinner.", infer: "Only names one past action — doesn't establish which of two events came first. The timeline concept itself is the break. This is the floor for this drill.", go: ["d","timeline_gap"] }
+        ]
+      },
+      p3: {
+        skill: "Probe 3 · Prerequisite: past participle form",
+        seed: "Generated variant",
+        prompt: `Which is the correct past participle of "write" (as in "She has ___ a letter")?`,
+        options: [
+          { h: "written", infer: "Correct — irregular past participles hold. So the break isn't the timeline or the participle forms — it's specifically COMBINING them into the has/have/had + participle construction.", go: ["d","concept_gap"] },
+          { h: "writed", infer: "Regularized an irregular verb (should be 'written', not 'writed'). Past participle forms are the broken prerequisite.", go: ["d","participle_gap"] }
+        ]
+      }
+    },
+    D: {
+      careless: {
+        cause: "Careless error", tone: "ok", title: "No reteach needed",
+        note: "Two fresh perfect-tense questions in a row came back correct. Given five months of flat data, this is worth watching closely next session — but for this test question, log it as a slip.",
+        states: ["solid","assumed","assumed"], lesson: null
+      },
+      concept_gap: {
+        cause: "Concept-level gap", tone: "warn",
+        title: "Timeline and participles both hold — combining them doesn't",
+        plan: ["combine","verb_tense_full"],
+        note: "The student places events on a timeline correctly and knows irregular participle forms — both prerequisite probes came back clean. The break is specifically in combining them: pairing the right helper word (has/have/had) with the right participle.",
+        mis: "you know the timeline and the correct participle forms — combining them into has/have/had + participle is where it breaks.",
+        states: ["broken","solid","solid"],
+        lesson: ["Combining has/have/had + the correct participle", "Re-climb: full perfect-tense check with mixed examples"]
+      },
+      participle_gap: {
+        cause: "Missing prerequisite", tone: "bad",
+        title: "Past participle forms are the break",
+        plan: ["participles","combine","verb_tense_full"],
+        note: "The student places events on a timeline correctly, but regularizes irregular verbs (writed instead of written). Past participle forms are the base the reteach needs to rebuild from before the full construction can work.",
+        mis: "you place events on a timeline correctly, but irregular participle forms (like 'written' instead of 'writed') are where it breaks.",
+        states: ["blocked","broken","solid"],
+        lesson: ["Irregular past participle forms", "Combining has/have/had + participle", "Re-climb: full perfect-tense check"]
+      },
+      timeline_gap: {
+        cause: "Missing prerequisite — deep", tone: "bad",
+        title: "Placing events on a timeline is the break",
+        plan: ["timeline","participles","combine","verb_tense_full"],
+        note: "This is the floor for this drill — the student can't yet establish that one past action happened before another. Matches the coaching guide's read: needs direct instruction on the past-present-future line, not more independent practice.",
+        mis: "the gap sits below participles — placing two past events in order on a timeline is where it breaks first.",
+        states: ["blocked","blocked","broken"],
+        lesson: ["Placing events on a timeline", "Past participle forms", "Combining has/have/had + participle", "Re-climb: full perfect-tense check"]
+      }
+    },
+    TOPIC_TITLE: {
+      timeline: "Placing events on a timeline",
+      participles: "Past participle forms",
+      combine: "Combining has/have/had + participle",
+      verb_tense_full: "Perfect verb tense (re-climb)"
+    },
+    PREREQ: { verb_tense_full: "combine", combine: "participles", participles: "timeline" },
+    THEORY: {
+      timeline: {
+        main: "Every action happens at a point in time. When two actions both happened in the past, one can still happen BEFORE the other — that's what perfect tense signals.",
+        alt: "Picture a line: Past — Present — Future. Now imagine a second, earlier point on the past side — that's the 'past before the past' moment perfect tense marks.",
+        example: "'I had already eaten dinner when she arrived' — eating dinner happened, then arriving happened. Both are in the past, but eating came first."
+      },
+      participles: {
+        main: "Perfect tense pairs has/have/had with a special verb form called the past participle. Regular verbs just add -ed (walked), but many common verbs are irregular (write → written, not writed).",
+        alt: "Think of each irregular verb as having its own partner word for has/have/had — write's partner is written, go's partner is gone, not the -ed you'd expect.",
+        example: "'go' becomes 'gone' (has gone), not 'goed'. 'write' becomes 'written' (has written), not 'writed'."
+      },
+      combine: {
+        main: "Perfect tense = has/have/had + the past participle. Has/have signals present perfect (a past action relevant now); had signals past perfect (a past action before another past action).",
+        alt: "It's a two-piece puzzle: pick the right helper word for when it happened, then attach the correct participle for the verb.",
+        example: "'She has finished her homework' (present perfect — done, matters now). 'She had finished before dinner' (past perfect — done before another past moment)."
+      },
+      verb_tense_full: {
+        main: "Full check: identify the timeline relationship first, then pick has/have/had accordingly, then attach the correct past participle for the verb.",
+        alt: "Same three-step puzzle, put together: when did it happen relative to now or another event, which helper word matches, which participle matches the verb.",
+        example: "'By the time the bell rang, the class had read the entire chapter' — reading finished before the bell (past-before-past), so 'had' + 'read'."
+      }
+    },
+    QUESTION_BANK: {
+      timeline: [
+        { prompt: "Which sentence describes something that happened BEFORE another past event?", options: [{h:"I had already eaten dinner when she arrived.",ok:true},{h:"I ate dinner.",hint:"This only tells us one past action, not which of two came first."}] },
+        { prompt: "Which sentence shows a past action finished before a later point in the past?", options: [{h:"By noon, he had left the building.",ok:true},{h:"He left the building.",hint:"There's no second past moment here to compare timing to."}] },
+        { prompt: "Which sentence signals an action completed before another past event?", options: [{h:"She had packed her bags before the taxi arrived.",ok:true},{h:"She packed her bags.",hint:"There's no second past event here to compare timing to."}] }
+      ],
+      participles: [
+        { prompt: `Which is the correct past participle of "write" (as in "She has ___ a letter")?`, options: [{h:"written",ok:true},{h:"writed",hint:"'write' is irregular — it doesn't just add -ed."}] },
+        { prompt: `Which is the correct past participle of "go" (as in "They have ___ home")?`, options: [{h:"gone",ok:true},{h:"goed",hint:"'go' is irregular — its participle is 'gone', not 'goed'."}] },
+        { prompt: `Which is the correct past participle of "eat" (as in "He had ___ before we arrived")?`, options: [{h:"eaten",ok:true},{h:"eated",hint:"'eat' is irregular — its participle is 'eaten', not 'eated'."}] }
+      ],
+      combine: [
+        { prompt: "Choose the correct verb form. She ___ (finish) her project, so she's free tonight.", options: [{h:"has finished",ok:true},{h:"finish",hint:"This misses the has/have + participle construction entirely."},{h:"will finish",hint:"This describes the future, not something already done."}] },
+        { prompt: "Choose the correct verb form. They ___ (see) that movie three times already.", options: [{h:"have seen",ok:true},{h:"seen",hint:"'seen' needs a helper word — has/have — in front of it."},{h:"see",hint:"This is present tense, not present perfect."}] },
+        { prompt: "Choose the correct verb form. By the time we got there, the show ___ (start) already.", options: [{h:"had started",ok:true},{h:"started",hint:"This doesn't show the show starting BEFORE another past moment."},{h:"has started",hint:"This is present perfect, but the sentence needs 'had' for past-before-past."}] }
+      ],
+      verb_tense_full: [
+        { prompt: "She ___ her homework already, so she can watch a movie now.", options: [{h:"has finished",ok:true},{h:"finish",hint:"Base form skips the has/have + participle construction."},{h:"finished",hint:"Simple past misses the 'already, relevant now' signal — that calls for present perfect."},{h:"will finish",hint:"This is future tense, but the homework is already done."}] },
+        { prompt: "By the time the bell rang, the class ___ the entire chapter.", options: [{h:"had read",ok:true},{h:"read",hint:"Simple past doesn't show the reading finished before the bell rang."},{h:"has read",hint:"Present perfect doesn't fit — this needs 'had' for past-before-past."},{h:"will read",hint:"This is future tense, but the bell already rang."}] },
+        { prompt: "He ___ to three countries before he turned eighteen.", options: [{h:"had traveled",ok:true},{h:"travels",hint:"Present tense doesn't show this happened before turning eighteen."},{h:"will travel",hint:"Future tense doesn't fit a completed past event."},{h:"traveling",hint:"This isn't a complete verb form on its own."}] }
+      ]
+    }
+  }
+};
+
+/* ---------------------------------------------------------------- */
+/* Active-scenario state (reassigned by selectScenario)               */
+/* ---------------------------------------------------------------- */
+
+let active = null;
+let path = [];
+let trace = [];
+
+const stage = document.getElementById("stage");
+
+/* Select-then-submit: clicking an option only highlights it (in case of a
+   misclick); the student can change their pick until they press Submit. */
+function wireOptions(container, onSubmit){
+  let selected = null;
+  const opts = container.querySelectorAll(".opt");
+  const submitBtn = container.querySelector(".submit-row button");
+  opts.forEach(btn => {
+    btn.onclick = () => {
+      opts.forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selected = Number(btn.dataset.i);
+      submitBtn.disabled = false;
+    };
+  });
+  submitBtn.onclick = () => {
+    if(selected === null) return;
+    onSubmit(selected);
+  };
+}
+
+function selectScenario(key){
+  active = SCENARIOS[key];
+  path = []; trace = [];
+  renderIntro();
+}
+
+function renderSkillSelect(){
+  stage.innerHTML = `
+    <div class="skill-chip">Choose a skill to diagnose</div>
+    <div class="prompt" style="font-size:16px">From his Language deep dive: mastery-blocked at Grade 5 despite Language being his stronger subject overall. Two specific skills are stuck, not the whole subject.</div>
+    <div class="skillcards">
+      <button class="skillcard" id="pick-verbTense">
+        <div class="num">22.9% accuracy</div>
+        <h3>Perfect verb tense</h3>
+        <p>Flat for 5 months across a 6-skill verb-tense cluster, despite heavy practice.</p>
+      </button>
+      <button class="skillcard" id="pick-guideWords">
+        <div class="num">26.3% accuracy</div>
+        <h3>Guide words</h3>
+        <p>35 attempts, 175 questions — accuracy got worse as practice ramped up in February.</p>
+      </button>
+    </div>`;
+  document.getElementById("pick-verbTense").onclick = () => selectScenario("verbTense");
+  document.getElementById("pick-guideWords").onclick = () => selectScenario("guideWords");
+}
+
+function renderIntro(){
+  stage.innerHTML = `
+    <div class="context">${active.contextHTML}</div>
+    <div class="skill-chip">Diagnostic ready</div>
+    <div class="prompt">3 quick questions or fewer. Answers route the next probe automatically.</div>
+    <button class="btn" id="start">Start diagnostic</button>
+    <div style="margin-top:12px"><button class="btn ghost" id="switchSkill">Choose a different skill</button></div>`;
+  document.getElementById("start").onclick = () => renderQ("p1");
+  document.getElementById("switchSkill").onclick = renderSkillSelect;
+}
+
+function renderSteps(current){
+  const labels = path.map(id => active.Q[id].skill.split("·")[0].trim());
+  if(current) labels.push(current);
+  return `<div class="steps">${labels.map((l,i)=>`<span class="step${i===labels.length-1?" now":""}">${l}</span>`).join("")}</div>`;
+}
+
+function renderQ(id){
+  const q = active.Q[id];
+  stage.innerHTML = `
+    ${renderSteps(q.skill.split("·")[0].trim())}
+    <div class="skill-chip">${q.skill}</div>
+    <div class="prompt">${q.prompt}</div>
+    ${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`).join("")}
+    <div class="submit-row"><button class="btn" disabled>Submit</button></div>
+    <div class="seed-chip">${q.seed}</div>`;
+  wireOptions(stage, (i) => {
+    const o = q.options[i];
+    path.push(id);
+    trace.push({ skill: q.skill, chosen: o.h, infer: o.infer });
+    o.go[0] === "q" ? renderQ(o.go[1]) : renderDiag(o.go[1]);
+  });
+}
+
+function renderDiag(id){
+  const d = active.D[id];
+  const noteFor = (s) => {
+    if(s==="broken") return "lesson starts here";
+    if(s==="solid") return "verified solid";
+    if(s==="blocked") return "blocked until base repaired";
+    return "assumed, not probed";
+  };
+  stage.innerHTML = `
+    ${renderSteps("Diagnosis")}
+    <div class="diag">
+      <span class="diag-cause ${d.tone}">${d.cause}</span>
+      <h2>${d.title}</h2>
+      <p>${d.note || ""}</p>
+      <div class="ladder">
+        <h3>Skill ladder</h3>
+        ${active.CHAIN.map((name,i)=>{
+          const s = d.states[i];
+          const mark = s==="solid" ? "✓" : s==="broken" ? "✕" : s==="blocked" ? "○" : "·";
+          return `<div class="rung ${s}"><span class="mark">${mark}</span><span>${name}</span><span class="note">${noteFor(s)}</span></div>`;
+        }).join("")}
+      </div>
+      <div class="lesson">
+        <h3>Generated lesson outline</h3>
+        ${d.lesson ? `<ol>${d.lesson.map(l=>`<li>${l}</li>`).join("")}</ol>` : `<div class="none">None — the miss is logged for pattern tracking, and the student moves on.</div>`}
+      </div>
+      <div style="margin-top:22px; display:flex; gap:10px; flex-wrap:wrap;">
+        ${d.lesson ? `<button class="btn" id="genlesson">Generate lesson →</button>` : ``}
+        <button class="btn ghost" id="again">Run again</button>
+        <button class="btn ghost" id="switchSkill2">Choose a different skill</button>
+      </div>
+    </div>`;
+  document.getElementById("again").onclick = () => { path=[]; trace=[]; renderIntro(); };
+  document.getElementById("switchSkill2").onclick = renderSkillSelect;
+  const gl = document.getElementById("genlesson");
+  if(gl) gl.onclick = () => startLesson(id);
+}
+
+/* ---------- Lesson generation + player ---------- */
+
+const NEED = 3;
+const MINIPROBE = {
+  options: [
+    { h:"I follow the example, but the practice questions look different", outcome:"regen" },
+    { h:"A smaller step underneath this one is shaky", outcome:"insert" },
+    { h:"Honestly, I'm lost and just guessing", outcome:"escalate" }
+  ]
+};
+
+let LS = null;
+
+function mkSection(topic){
+  return { topic, title: active.TOPIC_TITLE[topic], correct:0, wrong:0, q:0, mastered:false, regenerated:false, alt:false, inserted:false };
+}
+
+function startLesson(diagId){
+  const d = active.D[diagId];
+  LS = {
+    diagId, mis: d.mis,
+    firstWrong: (trace[0] && trace[0].chosen) || null,
+    sections: d.plan.map(mkSection),
+    idx: 0, inProbe:false
+  };
+  renderGenerating("Generating lesson from the diagnosis…",
+    `Building ${LS.sections.length} gated sections, seeded with a real (anonymized) student's coaching examples`, renderLesson);
+}
+
+function renderGenerating(title, cap, cb){
+  stage.innerHTML = `<div class="gen"><div class="skill-chip">${title}</div><div class="bar"></div><div class="bar" style="width:82%"></div><div class="bar" style="width:64%"></div><div class="cap">${cap}</div></div>`;
+  setTimeout(cb, 950);
+}
+
+function railHTML(){
+  return `<div class="rail">${LS.sections.map((s,i)=>{
+    const st = s.mastered ? "done" : i===LS.idx ? "active" : i<LS.idx ? "done" : "locked";
+    const icon = st==="done" ? "✓" : st==="locked" ? "🔒" : (i+1);
+    return `<div class="r ${st}"><span class="d">${icon}</span>${s.title}</div>`;
+  }).join("")}</div>`;
+}
+
+function renderLesson(){
+  const s = LS.sections[LS.idx];
+  const th = active.THEORY[s.topic];
+  let banner = "";
+  if(s.regenerated) banner = `<div class="banner regen">Regenerated with a different approach — a visual/timeline model this time.</div>`;
+  else if(s.inserted) banner = `<div class="banner insert">Plan adjusted — inserted prerequisite: ${s.title}. The ladder grew a rung.</div>`;
+  const confront = (LS.idx===0 && LS.mis)
+    ? `<div class="theory" style="font-weight:600">${LS.firstWrong?`You answered "${LS.firstWrong}" — `:""}${LS.mis}</div>` : "";
+  stage.innerHTML = `
+    ${railHTML()}
+    ${banner}
+    <div class="skill-chip">Section ${LS.idx+1} of ${LS.sections.length} · gate: ${NEED} correct to unlock the next</div>
+    <h2 style="font-size:19px;font-weight:700;margin:4px 0 12px">${s.title}</h2>
+    ${confront}
+    <div class="theory">${s.alt?th.alt:th.main}</div>
+    <div class="example"><b>Worked example.</b> ${th.example}</div>
+    <div class="meter">Section accuracy: <b>${s.correct}</b> correct · ${s.wrong} missed · need <span class="pass">${NEED}</span> to master</div>
+    <div id="qarea"></div>`;
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const s = LS.sections[LS.idx];
+  const bank = active.QUESTION_BANK[s.topic];
+  const q = bank[s.q % bank.length];
+  const qa = document.getElementById("qarea");
+  qa.innerHTML = `
+    <div class="prompt" style="font-size:16px">${q.prompt}</div>
+    ${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`).join("")}
+    <div class="submit-row"><button class="btn" disabled>Submit</button></div>`;
+  wireOptions(qa, (i) => answer(q.options[i]));
+}
+
+function updateMeter(){
+  const s = LS.sections[LS.idx];
+  const m = stage.querySelector(".meter");
+  if(m) m.innerHTML = `Section accuracy: <b>${s.correct}</b> correct · ${s.wrong} missed · need <span class="pass">${NEED}</span> to master`;
+}
+
+function answer(opt){
+  const s = LS.sections[LS.idx];
+  s.q++;
+  const qa = document.getElementById("qarea");
+  if(opt.ok){
+    s.correct++; updateMeter();
+    if(s.correct>=NEED){ qa.innerHTML=`<div class="feedback good">Correct — that clears the gate.</div>`; setTimeout(masterSection, 850); return; }
+    qa.innerHTML=`<div class="feedback good">Correct — keep going.</div>`;
+    setTimeout(renderQuestion, 800);
+  } else {
+    s.wrong++; updateMeter();
+    if(s.wrong>=2 && !LS.inProbe){
+      LS.inProbe = true;
+      qa.innerHTML=`<div class="feedback hint">Accuracy dipped — let's check something before continuing.</div>`;
+      setTimeout(renderMiniProbe, 900);
+      return;
+    }
+    qa.innerHTML=`<div class="feedback hint">${opt.hint||"Not quite — try the next one."}</div>`;
+    setTimeout(renderQuestion, 850);
+  }
+}
+
+function masterSection(){
+  const s = LS.sections[LS.idx];
+  s.mastered = true;
+  if(LS.idx >= LS.sections.length-1){ renderLessonDone(); return; }
+  LS.idx++;
+  const ns = LS.sections[LS.idx];
+  renderGenerating("Section mastered · preparing the next one…",
+    `Pre-generated while you worked — ${ns.title}`, renderLesson);
+}
+
+function renderMiniProbe(){
+  const s = LS.sections[LS.idx];
+  stage.innerHTML = `
+    ${railHTML()}
+    <div class="banner insert">Mid-lesson mini-probe — one question to decide what to fix.</div>
+    <div class="skill-chip">Re-diagnosing inside "${s.title}"</div>
+    <div class="prompt" style="font-size:16px">Which feels closest to what's tripping you up on <b>${s.title.toLowerCase()}</b>?</div>
+    ${MINIPROBE.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABC"[i]}</span><span>${o.h}</span></button>`).join("")}
+    <div class="submit-row"><button class="btn" disabled>Submit</button></div>`;
+  wireOptions(stage, (i) => miniOutcome(MINIPROBE.options[i]));
+}
+
+function miniOutcome(opt){
+  LS.inProbe = false;
+  const s = LS.sections[LS.idx];
+  if(opt.outcome==="regen"){
+    if(s.regenerated){ renderEscalate("Regenerated once already and accuracy is still below the gate."); return; }
+    s.regenerated=true; s.alt=true; s.correct=0; s.wrong=0; s.q=0;
+    renderGenerating("Regenerating this section…", "Same skill, different representation — a timeline/visual model", renderLesson);
+  } else if(opt.outcome==="insert"){
+    const pre = active.PREREQ[s.topic];
+    if(!pre){ renderEscalate("No prerequisite left below this — it's the drill floor."); return; }
+    const nu = mkSection(pre); nu.inserted=true;
+    LS.sections.splice(LS.idx, 0, nu);
+    renderGenerating("Adjusting the plan…", `Inserting prerequisite: ${nu.title}`, renderLesson);
+  } else {
+    renderEscalate("Student selected 'lost and guessing'.");
+  }
+}
+
+function renderLessonDone(){
+  stage.innerHTML = `
+    ${railHTML()}
+    <div class="diag">
+      <span class="diag-cause ok">Lesson complete</span>
+      <h2>Back above the gate — concept rebuilt</h2>
+      <p>All ${LS.sections.length} sections mastered, ending with the re-climb to the original test skill. The final section cleared the ${NEED}-correct gate.</p>
+      <div class="lesson">
+        <h3>What gets reported</h3>
+        <ol>
+          <li>A mastery event per section → TimeBack, so the campus DRI sees the work instead of idle time</li>
+          <li>The confirmed-fixed skill feeds back into the student's diagnostic history</li>
+          <li>His next Grade-5 mastery attempt re-checks this skill to confirm it stuck</li>
+        </ol>
+      </div>
+      <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" id="relesson">Replay lesson</button>
+        <button class="btn ghost" id="again2">Back to diagnostic</button>
+        <button class="btn ghost" id="switchSkill3">Choose a different skill</button>
+      </div>
+    </div>`;
+  document.getElementById("relesson").onclick = () => startLesson(LS.diagId);
+  document.getElementById("again2").onclick = () => { path=[]; trace=[]; renderIntro(); };
+  document.getElementById("switchSkill3").onclick = renderSkillSelect;
+}
+
+function renderEscalate(reason){
+  stage.innerHTML = `
+    ${railHTML()}
+    <div class="coach-card">
+      <span class="diag-cause warn">Campus DRI notified</span>
+      <h2>Generation reached its limit</h2>
+      <p style="font-size:14px;color:var(--sub);margin-bottom:6px">${reason} Per the escalation cap, the loop stops regenerating and sends a notification to the campus DRI instead of trying again.</p>
+      <p style="font-size:13px;color:var(--mut)">The notification includes the full trace: original miss, diagnosis, sections attempted, and where accuracy stalled.</p>
+      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn ghost" id="again3">Back to diagnostic</button>
+        <button class="btn ghost" id="switchSkill4">Choose a different skill</button>
+      </div>
+    </div>`;
+  document.getElementById("again3").onclick = () => { path=[]; trace=[]; renderIntro(); };
+  document.getElementById("switchSkill4").onclick = renderSkillSelect;
+}
+
+renderSkillSelect();
+</script>
+</body>
+</html>
