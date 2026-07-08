@@ -31,6 +31,15 @@
   .onboard-step .num{flex:none; width:26px; height:26px; border-radius:99px; background:var(--accent-soft); color:var(--accent); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;}
   .onboard-step p{font-size:15px; padding-top:2px;}
 
+  .skill-roadmap{margin-top:20px;}
+  .skill-row{padding:16px; border:1.5px solid var(--line); border-radius:10px; margin-bottom:10px;}
+  .skill-row.done{border-color:transparent; background:var(--ok-soft);}
+  .skill-row.current{border-color:var(--accent); background:var(--accent-soft);}
+  .skill-row.locked{opacity:.5;}
+  .skill-row .skill-name{font-size:15px; font-weight:700;}
+  .skill-row .done-label{margin-top:6px; font-size:13px; font-weight:600; color:var(--ok);}
+  .skill-row .skill-start-btn{margin-top:12px;}
+
   .skill-chip{font-size:12px; font-weight:600; color:var(--sub); margin-bottom:6px;}
   .prompt{font-size:18px; font-weight:600; margin:10px 0 20px;}
   .qcount{font-size:12px; font-weight:600; color:var(--mut); margin-bottom:6px;}
@@ -376,6 +385,7 @@ function wireOptions(container, onSubmit){
 }
 
 function renderOnboarding(){
+  if(skillIdx >= SKILL_ORDER.length){ renderAllDone(); return; }
   stage.innerHTML = `
     <div class="onboard">
       <h2>How does it work?</h2>
@@ -391,9 +401,29 @@ function renderOnboarding(){
         <span class="num">3</span>
         <p><b>Coaching call.</b> If it's still not clicking after practice, we'll set one up together — that part's mandatory, not optional.</p>
       </div>
-      <button class="btn" id="beginBtn" style="margin-top:16px">Let's start</button>
+      <div class="skill-roadmap">
+        ${SKILL_ORDER.map((key, i) => {
+          const skill = SCENARIOS[key];
+          if(i < skillIdx){
+            return `<div class="skill-row done">
+              <div class="skill-name">${skill.label}</div>
+              <div class="done-label">✓ This is done</div>
+            </div>`;
+          } else if(i === skillIdx){
+            return `<div class="skill-row current">
+              <div class="skill-name">${skill.label}</div>
+              <button class="btn skill-start-btn">Let's start</button>
+            </div>`;
+          } else {
+            return `<div class="skill-row locked">
+              <div class="skill-name">${skill.label}</div>
+            </div>`;
+          }
+        }).join("")}
+      </div>
     </div>`;
-  document.getElementById("beginBtn").onclick = startNextSkill;
+  const startBtn = stage.querySelector(".skill-start-btn");
+  if(startBtn) startBtn.onclick = startNextSkill;
 }
 
 function startNextSkill(){
@@ -401,6 +431,11 @@ function startNextSkill(){
   active = SCENARIOS[SKILL_ORDER[skillIdx]];
   diagState = { idx: 0, correct: 0, firstWrong: null };
   renderDiagQuestion();
+}
+
+function returnToHub(){
+  skillIdx++;
+  if(skillIdx >= SKILL_ORDER.length){ renderAllDone(); } else { renderOnboarding(); }
 }
 
 function renderDiagQuestion(){
@@ -454,7 +489,7 @@ function renderFeedbackThanks(text){
         <button class="btn" id="continueBtn">Continue →</button>
       </div>
     </div>`;
-  document.getElementById("continueBtn").onclick = () => { skillIdx++; startNextSkill(); };
+  document.getElementById("continueBtn").onclick = returnToHub;
 }
 
 /* ---------- Lesson generation + player ---------- */
@@ -650,7 +685,7 @@ function renderLessonDone(){
         <button class="btn" id="continueBtn">Continue →</button>
       </div>
     </div>`;
-  document.getElementById("continueBtn").onclick = () => { skillIdx++; startNextSkill(); };
+  document.getElementById("continueBtn").onclick = returnToHub;
 }
 
 function renderEscalate(reason){
