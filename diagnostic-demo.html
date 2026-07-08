@@ -473,7 +473,7 @@ function renderOnboarding(){
 function startNextSkill(){
   if(skillIdx >= SKILL_ORDER.length){ renderAllDone(); return; }
   active = SCENARIOS[SKILL_ORDER[skillIdx]];
-  diagState = { idx: 0, correct: 0, firstWrong: null };
+  diagState = { idx: 0, correct: 0 };
   renderDiagQuestion();
 }
 
@@ -494,7 +494,6 @@ function renderDiagQuestion(){
   wireOptions(stage, (i) => {
     const o = q.options[i];
     if(o.ok){ diagState.correct++; }
-    else if(diagState.firstWrong === null){ diagState.firstWrong = o.h; }
     diagState.idx++;
     if(diagState.idx >= DIAG_QUESTIONS){ finishDiagnostic(); }
     else { renderDiagQuestion(); }
@@ -569,7 +568,7 @@ function startLesson(size, topicOverride, cameFromPrereqCheck){
   const sec = mkSection(topic, size);
   sec.offset = topicOverride ? (cameFromPrereqCheck ? 1 : 0) : DIAG_QUESTIONS; // skip questions already asked
   if(topicOverride) sec.inserted = true;
-  LS = { firstWrong: diagState.firstWrong, sections: [sec], idx: 0, inProbe:false };
+  LS = { sections: [sec], idx: 0, inProbe:false };
   renderGenerating("Generating your practice…",
     `${size} question${size>1?"s":""} on ${active.TOPIC_TITLE[topic]}`, renderLesson);
 }
@@ -593,15 +592,12 @@ function renderLesson(){
   let banner = "";
   if(s.regenCount>0) banner = `<div class="banner regen">Regenerated with a different approach (attempt ${s.regenCount+1} of ${MAX_REGENS+1}) — a different explanation this time.</div>`;
   else if(s.inserted) banner = `<div class="banner insert">Plan adjusted — inserted prerequisite: ${s.title}.</div>`;
-  const confront = (LS.idx===0 && LS.firstWrong && s.q===0 && s.regenCount===0)
-    ? `<div class="theory" style="font-weight:600">You answered "${LS.firstWrong}" on the diagnostic — let's work through this properly.</div>` : "";
   const explanation = th.approaches[Math.min(s.regenCount, th.approaches.length-1)];
   const regenLabel = s.regenCount >= MAX_REGENS ? "Still don't understand? Book a coaching call" : "I don't understand, regenerate explanation";
   stage.innerHTML = `
     ${railHTML()}
     ${banner}
     <h2 style="font-size:19px;font-weight:700;margin:4px 0 12px">${s.title}</h2>
-    ${confront}
     <div class="theory">${explanation}</div>
     <div class="steps-box"><b>Steps</b><ol>${th.steps.map(x=>`<li>${x}</li>`).join("")}</ol></div>
     <div class="example"><b>Worked examples</b><ul>${th.examples.map(x=>`<li>${x}</li>`).join("")}</ul></div>
@@ -670,7 +666,7 @@ function advanceQuestion(s){
   s.q++;
   updateMeter(s);
   if(s.q >= s.needed){
-    const passThreshold = Math.ceil(s.needed * 0.7);
+    const passThreshold = Math.ceil(s.needed * 0.8);
     if(s.correct >= passThreshold){ masterSection(); }
     else { renderMiniProbe(); }
   } else {
