@@ -118,6 +118,9 @@
   .coach-card h2{font-size:19px; font-weight:700; margin:6px 0 8px;}
   .slots{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px 0;}
   .slot{font-size:13.5px; font-weight:600; text-align:center; padding:10px; border-radius:8px; border:1.5px solid var(--line); background:var(--card); color:var(--ink);}
+
+  .feedback-input{width:100%; font-family:inherit; font-size:14px; padding:12px 14px; border:1.5px solid var(--line); border-radius:10px; margin:14px 0; resize:vertical;}
+  .feedback-input:focus{outline:none; border-color:var(--accent);}
 </style>
 </head>
 <body>
@@ -137,77 +140,12 @@
 /* ---------------------------------------------------------------- */
 
 const QUESTIONS_PER_TOPIC = 10;
-const PASS_THRESHOLD = 7;
 
 const SCENARIOS = {
 
   verbTense: {
     label: "Perfect verb tense",
-    CHAIN: ["Perfect verb tense (the tested skill)", "Past participle forms", "Placing events on a timeline"],
-    Q: {
-      p1: {
-        skill: "Probe 1 · She ___ her homework already",
-        prompt: `Choose the correct verb form. She ___ her homework already, so she can watch a movie now.`,
-        options: [
-          { h: "has finished", infer: "correct", go: ["q","p1b"] },
-          { h: "finish", infer: "wrong", go: ["q","p2"] },
-          { h: "finished", infer: "wrong", go: ["q","p2"] },
-          { h: "will finish", infer: "wrong", go: ["q","p2"] }
-        ]
-      },
-      p1b: {
-        skill: "Probe 1b · By the time the bell rang (confirm)",
-        prompt: `By the time the bell rang, the class ___ the entire chapter.`,
-        options: [
-          { h: "had read", infer: "correct", go: ["d","careless"] },
-          { h: "read", infer: "wrong", go: ["q","p2"] },
-          { h: "has read", infer: "wrong", go: ["q","p2"] },
-          { h: "will read", infer: "wrong", go: ["q","p2"] }
-        ]
-      },
-      p2: {
-        skill: "Probe 2 · Prerequisite: placing events on a timeline",
-        prompt: `Which sentence describes something that happened BEFORE another past event?`,
-        options: [
-          { h: "I had already eaten dinner when she arrived.", infer: "correct", go: ["q","p3"] },
-          { h: "I ate dinner.", infer: "wrong", go: ["d","timeline_gap"] }
-        ]
-      },
-      p3: {
-        skill: "Probe 3 · Prerequisite: past participle form",
-        prompt: `Which is the correct past participle of "write" (as in "She has ___ a letter")?`,
-        options: [
-          { h: "written", infer: "correct", go: ["d","concept_gap"] },
-          { h: "writed", infer: "wrong", go: ["d","participle_gap"] }
-        ]
-      }
-    },
-    D: {
-      careless: { cause: "Careless error", tone: "ok", title: "No reteach needed",
-        note: "Two fresh perfect-tense questions in a row came back correct — logged as a slip on the original test question.",
-        states: ["solid","assumed","assumed"], lesson: null },
-      concept_gap: { cause: "Concept-level gap", tone: "warn",
-        title: "Timeline and participles both hold — combining them doesn't",
-        plan: ["combine","verb_tense_full"],
-        note: "Places events on a timeline correctly and knows irregular participle forms — both prerequisite probes came back clean. The break is specifically in combining them.",
-        mis: "you know the timeline and the correct participle forms — combining them into has/have/had + participle is where it breaks.",
-        states: ["broken","solid","solid"],
-        lesson: ["Combining has/have/had + the correct participle", "Re-climb: full perfect-tense check with mixed examples"] },
-      participle_gap: { cause: "Missing prerequisite", tone: "bad",
-        title: "Past participle forms are the break",
-        plan: ["participles","combine","verb_tense_full"],
-        note: "Places events on a timeline correctly, but regularizes irregular verbs (writed instead of written).",
-        mis: "you place events on a timeline correctly, but irregular participle forms (like 'written' instead of 'writed') are where it breaks.",
-        states: ["blocked","broken","solid"],
-        lesson: ["Irregular past participle forms", "Combining has/have/had + participle", "Re-climb: full perfect-tense check"] },
-      timeline_gap: { cause: "Missing prerequisite — deep", tone: "bad",
-        title: "Placing events on a timeline is the break",
-        plan: ["timeline","participles","combine","verb_tense_full"],
-        note: "This is the floor for this drill — can't yet establish that one past action happened before another.",
-        mis: "the gap sits below participles — placing two past events in order on a timeline is where it breaks first.",
-        states: ["blocked","blocked","broken"],
-        lesson: ["Placing events on a timeline", "Past participle forms", "Combining has/have/had + participle", "Re-climb: full perfect-tense check"] }
-    },
+    topFullTopic: "verb_tense_full",
     TOPIC_TITLE: {
       timeline: "Placing events on a timeline",
       participles: "Past participle forms",
@@ -307,71 +245,7 @@ const SCENARIOS = {
 
   guideWords: {
     label: "Guide words",
-    CHAIN: ["Guide words (the tested skill)", "Comparing words past the first match", "Basic alphabetical order"],
-    Q: {
-      p1: {
-        skill: "Probe 1 · Guide words: cat–cow",
-        prompt: `The guide words at the top of a dictionary page are <b>cat</b> and <b>cow</b>. Which word would be found on this page?`,
-        options: [
-          { h: "cloud", infer: "correct", go: ["q","p1b"] },
-          { h: "candle", infer: "wrong", go: ["q","p2"] },
-          { h: "crown", infer: "wrong", go: ["q","p2"] },
-          { h: "cabin", infer: "wrong", go: ["q","p2"] }
-        ]
-      },
-      p1b: {
-        skill: "Probe 1b · Guide words: march–mist (confirm)",
-        prompt: `The guide words are <b>march</b> and <b>mist</b>. Which word would be found on this page?`,
-        options: [
-          { h: "melon", infer: "correct", go: ["d","careless"] },
-          { h: "maple", infer: "wrong", go: ["q","p2"] },
-          { h: "moth", infer: "wrong", go: ["q","p2"] },
-          { h: "mango", infer: "wrong", go: ["q","p2"] }
-        ]
-      },
-      p2: {
-        skill: "Probe 2 · Prerequisite: basic alphabetical order",
-        prompt: `Which word comes first in alphabetical order — <b>desk</b> or <b>dog</b>?`,
-        options: [
-          { h: "desk", infer: "correct", go: ["q","p3"] },
-          { h: "dog", infer: "wrong", go: ["d","prereq_basic"] }
-        ]
-      },
-      p3: {
-        skill: "Probe 3 · Prerequisite: comparing past the first match",
-        prompt: `Which word comes first alphabetically — <b>climb</b> or <b>cloud</b>?`,
-        options: [
-          { h: "climb", infer: "correct", go: ["d","concept_gap"] },
-          { h: "cloud", infer: "wrong", go: ["d","prereq_deep"] }
-        ]
-      }
-    },
-    D: {
-      careless: { cause: "Careless error", tone: "ok", title: "No reteach needed",
-        note: "Two fresh guide-word questions in a row came back correct — logged as a slip on the original test question.",
-        states: ["solid","assumed","assumed"], lesson: null },
-      concept_gap: { cause: "Concept-level gap", tone: "warn",
-        title: "Alphabetizing works — applying it to a range doesn't",
-        plan: ["between_range","guide_words_full"],
-        note: "Alphabetizes correctly, including past a shared prefix — both prerequisite probes came back clean. The break is specifically in checking that a word falls between BOTH guide words.",
-        mis: "you can alphabetize letter-by-letter just fine — the break is specifically in checking that a word falls between BOTH guide words, not just one.",
-        states: ["broken","solid","solid"],
-        lesson: ["Checking a word falls between two guide words — both bounds, not one", "Re-climb: full guide-words check with mixed examples"] },
-      prereq_deep: { cause: "Missing prerequisite", tone: "bad",
-        title: "Multi-letter comparison is the break",
-        plan: ["multiletter","between_range","guide_words_full"],
-        note: "Basic single-letter alphabetizing holds, but guesses once two words share a starting letter or two instead of continuing the letter-by-letter comparison.",
-        mis: "single-letter alphabetizing holds, but comparing past a shared prefix (like climb vs. cloud) is where it breaks.",
-        states: ["blocked","broken","solid"],
-        lesson: ["Comparing words letter-by-letter past the first match", "Checking a word falls between two guide words", "Re-climb: full guide-words check"] },
-      prereq_basic: { cause: "Missing prerequisite — deep", tone: "bad",
-        title: "Basic alphabetical order is the break",
-        plan: ["basic_order","multiletter","between_range","guide_words_full"],
-        note: "This is the floor for this drill — sequencing two words alphabetically at all is where it breaks.",
-        mis: "this is the floor for this drill — sequencing two words alphabetically at all is where it breaks.",
-        states: ["blocked","blocked","broken"],
-        lesson: ["Alphabetical order, letter by letter", "Comparing words past the first match", "Checking a word falls between two guide words", "Re-climb: full guide-words check"] }
-    },
+    topFullTopic: "guide_words_full",
     TOPIC_TITLE: {
       basic_order: "Alphabetical order, letter by letter",
       multiletter: "Comparing words past the first match",
@@ -475,10 +349,10 @@ const SCENARIOS = {
 /* ---------------------------------------------------------------- */
 
 const SKILL_ORDER = ["verbTense", "guideWords"];
+const DIAG_QUESTIONS = 3;
 let skillIdx = 0;
 let active = null;
-let path = [];
-let trace = [];
+let diagState = null;
 let LS = null;
 
 const stage = document.getElementById("stage");
@@ -504,10 +378,10 @@ function wireOptions(container, onSubmit){
 function renderOnboarding(){
   stage.innerHTML = `
     <div class="onboard">
-      <h2>Before we start</h2>
+      <h2>How does it work?</h2>
       <div class="onboard-step">
         <span class="num">1</span>
-        <p><b>Diagnostic.</b> A few quick questions to find exactly what's tripping you up.</p>
+        <p><b>Diagnostic.</b> 3 quick questions per skill to see where you're at.</p>
       </div>
       <div class="onboard-step">
         <span class="num">2</span>
@@ -525,84 +399,78 @@ function renderOnboarding(){
 function startNextSkill(){
   if(skillIdx >= SKILL_ORDER.length){ renderAllDone(); return; }
   active = SCENARIOS[SKILL_ORDER[skillIdx]];
-  path = []; trace = [];
-  renderQ("p1");
+  diagState = { idx: 0, correct: 0, firstWrong: null };
+  renderDiagQuestion();
 }
 
-function renderSteps(current){
-  const labels = path.map(id => active.Q[id].skill.split("·")[0].trim());
-  if(current) labels.push(current);
-  return `<div class="steps">${labels.map((l,i)=>`<span class="step${i===labels.length-1?" now":""}">${l}</span>`).join("")}</div>`;
-}
-
-function renderQ(id){
-  const q = active.Q[id];
+function renderDiagQuestion(){
+  const bank = active.QUESTION_BANK[active.topFullTopic];
+  const raw = bank[diagState.idx];
+  const q = { prompt: raw.prompt, options: shuffle(raw.options) };
   stage.innerHTML = `
-    ${renderSteps(q.skill.split("·")[0].trim())}
-    <div class="skill-chip">${q.skill}</div>
+    <div class="skill-chip">Diagnostic — ${active.label} · question ${diagState.idx+1} of ${DIAG_QUESTIONS}</div>
     <div class="prompt">${q.prompt}</div>
     ${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`).join("")}
     <div class="submit-row"><button class="btn" disabled>Submit</button></div>`;
   wireOptions(stage, (i) => {
     const o = q.options[i];
-    path.push(id);
-    trace.push({ skill: q.skill, chosen: o.h, infer: o.infer });
-    o.go[0] === "q" ? renderQ(o.go[1]) : renderDiag(o.go[1]);
+    if(o.ok){ diagState.correct++; }
+    else if(diagState.firstWrong === null){ diagState.firstWrong = o.h; }
+    diagState.idx++;
+    if(diagState.idx >= DIAG_QUESTIONS){ finishDiagnostic(); }
+    else { renderDiagQuestion(); }
   });
 }
 
-function renderDiag(id){
-  const d = active.D[id];
-  const noteFor = (s) => {
-    if(s==="broken") return "lesson starts here";
-    if(s==="solid") return "verified solid";
-    if(s==="blocked") return "blocked until base repaired";
-    return "assumed, not probed";
-  };
+function finishDiagnostic(){
+  const score = diagState.correct;
+  if(score >= DIAG_QUESTIONS){ renderAppMismatch(); return; }
+  const size = score <= 1 ? 10 : 5;
+  startLesson(size);
+}
+
+function renderAppMismatch(){
   stage.innerHTML = `
-    ${renderSteps("Diagnosis")}
     <div class="diag">
-      <span class="diag-cause ${d.tone}">${d.cause}</span>
-      <h2>${d.title}</h2>
-      <p>${d.note || ""}</p>
-      <div class="ladder">
-        <h3>Skill ladder</h3>
-        ${active.CHAIN.map((name,i)=>{
-          const s = d.states[i];
-          const mark = s==="solid" ? "✓" : s==="broken" ? "✕" : s==="blocked" ? "○" : "·";
-          return `<div class="rung ${s}"><span class="mark">${mark}</span><span>${name}</span><span class="note">${noteFor(s)}</span></div>`;
-        }).join("")}
-      </div>
-      <div class="lesson">
-        <h3>Lesson outline</h3>
-        ${d.lesson ? `<ol>${d.lesson.map(l=>`<li>${l}</li>`).join("")}</ol>` : `<div class="none">None needed — the miss is logged, and we move on.</div>`}
-      </div>
+      <span class="diag-cause ok">Good news</span>
+      <h2>You know this — something else might be off</h2>
+      <p>You got all ${DIAG_QUESTIONS} diagnostic questions right on <b>${active.label}</b>, but your recent practice scores in the app have been low. That mismatch usually points to something about the app itself — not your understanding.</p>
+      <textarea class="feedback-input" id="feedbackText" rows="4" placeholder="What's been going wrong? Confusing questions, a glitch, wording that didn't make sense — anything helps."></textarea>
+      <button class="btn" id="submitFeedback">Send feedback</button>
+    </div>`;
+  document.getElementById("submitFeedback").onclick = () => {
+    const text = document.getElementById("feedbackText").value.trim();
+    renderFeedbackThanks(text);
+  };
+}
+
+function renderFeedbackThanks(text){
+  stage.innerHTML = `
+    <div class="diag">
+      <span class="diag-cause ok">Thanks!</span>
+      <h2>Got it — that helps a lot</h2>
+      <p>${text ? "Your feedback has been sent to your campus DRI." : "No worries — you can always share more later."}</p>
       <div style="margin-top:22px;">
-        <button class="btn" id="proceedBtn">${d.lesson ? "Continue to practice →" : "Continue →"}</button>
+        <button class="btn" id="continueBtn">Continue →</button>
       </div>
     </div>`;
-  document.getElementById("proceedBtn").onclick = () => {
-    if(d.lesson){ startLesson(id); }
-    else { skillIdx++; startNextSkill(); }
-  };
+  document.getElementById("continueBtn").onclick = () => { skillIdx++; startNextSkill(); };
 }
 
 /* ---------- Lesson generation + player ---------- */
 
-function mkSection(topic){
-  return { topic, title: active.TOPIC_TITLE[topic], q:0, correct:0, wrong:0, mastered:false, regenerated:false, alt:false, inserted:false };
+function mkSection(topic, size){
+  return { topic, title: active.TOPIC_TITLE[topic], q:0, correct:0, wrong:0, needed: size || QUESTIONS_PER_TOPIC,
+    mastered:false, regenerated:false, alt:false, inserted:false };
 }
 
-function startLesson(diagId){
-  const d = active.D[diagId];
-  LS = {
-    diagId, mis: d.mis,
-    firstWrong: (trace[0] && trace[0].chosen) || null,
-    sections: d.plan.map(mkSection),
-    idx: 0, inProbe:false
-  };
-  renderGenerating("Generating your lesson…",
-    `Building ${LS.sections.length} section${LS.sections.length>1?"s":""}, ${QUESTIONS_PER_TOPIC} practice questions each`, renderLesson);
+function startLesson(size){
+  const topic = active.topFullTopic;
+  const sec = mkSection(topic, size);
+  sec.offset = DIAG_QUESTIONS; // skip the questions already used in the diagnostic
+  LS = { firstWrong: diagState.firstWrong, sections: [sec], idx: 0, inProbe:false };
+  renderGenerating("Generating your practice…",
+    `${size} question${size>1?"s":""} on ${active.TOPIC_TITLE[topic]}`, renderLesson);
 }
 
 function renderGenerating(title, cap, cb){
@@ -624,8 +492,8 @@ function renderLesson(){
   let banner = "";
   if(s.regenerated) banner = `<div class="banner regen">Regenerated with a different approach — a different explanation this time.</div>`;
   else if(s.inserted) banner = `<div class="banner insert">Plan adjusted — inserted prerequisite: ${s.title}.</div>`;
-  const confront = (LS.idx===0 && LS.mis && s.q===0 && !s.regenerated)
-    ? `<div class="theory" style="font-weight:600">${LS.firstWrong?`You answered "${LS.firstWrong}" — `:""}${LS.mis}</div>` : "";
+  const confront = (LS.idx===0 && LS.firstWrong && s.q===0 && !s.regenerated)
+    ? `<div class="theory" style="font-weight:600">You answered "${LS.firstWrong}" on the diagnostic — let's work through this properly.</div>` : "";
   stage.innerHTML = `
     ${railHTML()}
     ${banner}
@@ -634,7 +502,7 @@ function renderLesson(){
     <div class="theory">${s.alt?th.alt:th.main}</div>
     <div class="steps-box"><b>Steps</b><ol>${th.steps.map(x=>`<li>${x}</li>`).join("")}</ol></div>
     <div class="example"><b>Worked examples</b><ul>${th.examples.map(x=>`<li>${x}</li>`).join("")}</ul></div>
-    <div class="meter">Question <b>${s.q+1}</b> of ${QUESTIONS_PER_TOPIC} · <b>${s.correct}</b> correct so far</div>
+    <div class="meter">Question <b>${s.q+1}</b> of ${s.needed} · <b>${s.correct}</b> correct so far</div>
     <div id="qarea"></div>`;
   renderQuestion();
 }
@@ -651,11 +519,11 @@ function shuffle(arr){
 function renderQuestion(){
   const s = LS.sections[LS.idx];
   const bank = active.QUESTION_BANK[s.topic];
-  const raw = bank[s.q % bank.length];
+  const raw = bank[(s.q + (s.offset||0)) % bank.length];
   const q = { prompt: raw.prompt, options: shuffle(raw.options) };
   const qa = document.getElementById("qarea");
   qa.innerHTML = `
-    <div class="qcount">Question ${s.q+1} of ${QUESTIONS_PER_TOPIC}</div>
+    <div class="qcount">Question ${s.q+1} of ${s.needed}</div>
     <div class="prompt" style="font-size:16px">${q.prompt}</div>
     ${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`).join("")}
     <div class="submit-row"><button class="btn" disabled>Submit</button></div>`;
@@ -669,7 +537,7 @@ function submitAnswer(q, i){
 
   const qa = document.getElementById("qarea");
   qa.innerHTML = `
-    <div class="qcount">Question ${s.q+1} of ${QUESTIONS_PER_TOPIC}</div>
+    <div class="qcount">Question ${s.q+1} of ${s.needed}</div>
     <div class="prompt" style="font-size:16px">${q.prompt}</div>
     ${q.options.map((o,idx)=>{
       let cls = "opt";
@@ -684,14 +552,15 @@ function submitAnswer(q, i){
 
 function updateMeter(s){
   const m = stage.querySelector(".meter");
-  if(m) m.innerHTML = `Question <b>${Math.min(s.q+1,QUESTIONS_PER_TOPIC)}</b> of ${QUESTIONS_PER_TOPIC} · <b>${s.correct}</b> correct so far`;
+  if(m) m.innerHTML = `Question <b>${Math.min(s.q+1,s.needed)}</b> of ${s.needed} · <b>${s.correct}</b> correct so far`;
 }
 
 function advanceQuestion(s){
   s.q++;
   updateMeter(s);
-  if(s.q >= QUESTIONS_PER_TOPIC){
-    if(s.correct >= PASS_THRESHOLD){ masterSection(); }
+  if(s.q >= s.needed){
+    const passThreshold = Math.ceil(s.needed * 0.7);
+    if(s.correct >= passThreshold){ masterSection(); }
     else { renderMiniProbe(); }
   } else {
     renderQuestion();
