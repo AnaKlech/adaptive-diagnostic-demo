@@ -15,35 +15,37 @@
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; padding:32px 20px 64px;}
-  .wrap{max-width:980px; margin:0 auto;}
+  .wrap{max-width:760px; margin:0 auto;}
   header{margin-bottom:20px;}
-  header h1{font-size:22px; font-weight:700; letter-spacing:-0.01em;}
-  header p{color:var(--sub); font-size:14px; margin-top:4px;}
   .tag{display:inline-block; font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--accent); background:var(--accent-soft); border-radius:99px; padding:3px 10px; margin-bottom:10px;}
-  .profile{border-bottom:1px solid var(--line); padding-bottom:16px; margin-bottom:20px; font-size:13.5px; color:var(--sub);}
-  .profile b{color:var(--ink);}
+  header h1{font-size:20px; font-weight:700; letter-spacing:-0.01em;}
 
   .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px;}
 
   .context{border-left:3px solid var(--warn); padding:14px 18px; background:var(--warn-soft); border-radius:10px; margin-bottom:18px; font-size:14px;}
+  .context b{display:block; margin-bottom:2px;}
 
-  .skillcards{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px;}
-  @media(max-width:640px){.skillcards{grid-template-columns:1fr;}}
-  .skillcard{text-align:left; background:var(--card); border:1.5px solid var(--line); border-radius:12px; padding:20px; cursor:pointer; font-family:inherit; transition:border-color .15s, background .15s;}
-  .skillcard:hover{border-color:var(--accent); background:var(--accent-soft);}
-  .skillcard .num{font-size:12px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--bad); margin-bottom:8px;}
-  .skillcard h3{font-size:17px; font-weight:700; margin-bottom:6px;}
-  .skillcard p{font-size:13px; color:var(--sub);}
+  .onboard h2{font-size:19px; font-weight:700; margin-bottom:14px;}
+  .onboard-step{display:flex; gap:12px; align-items:flex-start; padding:14px 0; border-bottom:1px solid var(--line);}
+  .onboard-step:last-of-type{border-bottom:none;}
+  .onboard-step .num{flex:none; width:26px; height:26px; border-radius:99px; background:var(--accent-soft); color:var(--accent); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;}
+  .onboard-step p{font-size:15px; padding-top:2px;}
 
   .skill-chip{font-size:12px; font-weight:600; color:var(--sub); margin-bottom:6px;}
-  .seed-chip{font-size:11px; color:var(--mut); margin-top:14px;}
   .prompt{font-size:18px; font-weight:600; margin:10px 0 20px;}
+  .qcount{font-size:12px; font-weight:600; color:var(--mut); margin-bottom:6px;}
 
   .opt{display:flex; align-items:center; gap:12px; width:100%; text-align:left; font-size:16px; font-family:inherit; background:var(--card); border:1.5px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px; cursor:pointer; transition:border-color .15s, background .15s;}
-  .opt:hover{border-color:var(--accent); background:var(--accent-soft);}
+  .opt:hover:not(:disabled){border-color:var(--accent); background:var(--accent-soft);}
   .opt .key{flex:none; width:26px; height:26px; border-radius:7px; background:var(--bg); color:var(--sub); font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
   .opt.selected{border-color:var(--accent); background:var(--accent-soft);}
   .opt.selected .key{background:var(--accent); color:#fff;}
+  .opt:disabled{cursor:default;}
+  .opt.chosen-correct{border-color:var(--ok); background:var(--ok-soft);}
+  .opt.chosen-correct .key{background:var(--ok); color:#fff;}
+  .opt.chosen-wrong{border-color:var(--bad); background:var(--bad-soft);}
+  .opt.chosen-wrong .key{background:var(--bad); color:#fff;}
+  .opt.reveal-correct{border-color:var(--ok); border-style:dashed;}
 
   .steps{display:flex; gap:6px; margin-bottom:18px; flex-wrap:wrap;}
   .step{font-size:12px; font-weight:600; color:var(--sub); background:var(--bg); border-radius:99px; padding:4px 12px;}
@@ -62,7 +64,7 @@
   .diag>p{font-size:14.5px; color:var(--sub); margin-bottom:22px;}
 
   .ladder{margin-bottom:22px;}
-  .ladder h3, .lesson h3{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); margin-bottom:10px;}
+  .ladder h3, .lesson h3, .steps-box b{font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); margin-bottom:10px; display:block;}
   .rung{display:flex; align-items:center; gap:10px; font-size:14px; padding:9px 12px; border-radius:9px; margin-bottom:6px; border:1px solid var(--line);}
   .rung .mark{flex:none; width:22px; height:22px; border-radius:99px; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;}
   .rung.solid{background:var(--ok-soft); border-color:transparent;}
@@ -80,8 +82,6 @@
   .lesson ol{padding-left:20px;}
   .lesson li{font-size:14px; margin-bottom:6px;}
   .lesson .none{font-size:14px; color:var(--sub);}
-
-  footer{margin-top:28px; font-size:12.5px; color:var(--mut); max-width:640px;}
 
   .gen{display:flex; flex-direction:column; gap:10px; padding:14px 0 8px;}
   .gen .bar{height:12px; border-radius:6px; background:var(--accent-soft); overflow:hidden; position:relative;}
@@ -103,255 +103,110 @@
   .banner.insert{color:var(--warn); background:var(--warn-soft);}
 
   .theory{font-size:15px; margin-bottom:14px;}
+  .steps-box{font-size:14px; background:var(--bg); border-radius:10px; padding:12px 14px; margin-bottom:14px;}
+  .steps-box ol{padding-left:18px; margin-top:4px;}
+  .steps-box li{margin-bottom:4px;}
   .example{font-size:14px; background:var(--bg); border-radius:10px; padding:12px 14px; margin-bottom:18px;}
+  .example ul{padding-left:18px; margin-top:6px;}
+  .example li{margin-bottom:6px;}
   .meter{font-size:12.5px; color:var(--sub); margin-bottom:14px;}
-  .meter .pass{color:var(--ok); font-weight:600;}
-  .feedback{font-size:14.5px; font-weight:600; padding:12px 14px; border-radius:9px;}
+  .feedback{font-size:14.5px; font-weight:600; padding:12px 14px; border-radius:9px; margin:14px 0;}
   .feedback.good{color:var(--ok); background:var(--ok-soft);}
   .feedback.hint{color:var(--warn); background:var(--warn-soft);}
 
-  .coach-card{border-left:3px solid var(--warn); background:var(--warn-soft); padding:16px 18px; border-radius:10px;}
+  .coach-card{border-left:3px solid var(--bad); background:var(--bad-soft); padding:16px 18px; border-radius:10px;}
   .coach-card h2{font-size:19px; font-weight:700; margin:6px 0 8px;}
+  .slots{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px 0;}
+  .slot{font-size:13.5px; font-weight:600; text-align:center; padding:10px; border-radius:8px; border:1.5px solid var(--line); background:var(--card); color:var(--ink);}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <span class="tag">Prototype · pre-scripted branching, seeded with real data</span>
-    <h1>Adaptive Diagnostic — Student Case Study</h1>
-    <div class="profile">
-      <b>Grade 7 student</b> · working at Grade 5 (2 grades behind)<br>
-      Mastery-blocked at Grade 5 — 9 end-of-course attempts since January, none passed (best 88.9%). Language is his
-      <b>stronger</b> subject overall (74.6% accuracy) — this isn't a difficulty wall, it's a couple of narrow skills
-      stuck for months despite heavy practice.
-    </div>
+    <h1>Adaptive Diagnostic</h1>
   </header>
 
-  <main>
-    <div class="card" id="stage"></div>
-    <footer id="foot">Seeded with a real student's deep-dive data and coaching-guide examples (name and campus removed). In production every next question is generated live by Claude, conditioned on the exact wrong answer — here the branching is pre-scripted for demo purposes, but the content (accuracy figures, wrong-answer patterns, worked examples) is his.</footer>
-  </main>
+  <div class="card" id="stage"></div>
 </div>
 
 <script>
 /* ---------------------------------------------------------------- */
-/* Scenario data — one real student's two priority skills            */
+/* Scenario data — one real student's two priority skills, run in order */
+/* (verb tense first — his lowest at 22.9% — then guide words)       */
 /* ---------------------------------------------------------------- */
+
+const QUESTIONS_PER_TOPIC = 10;
+const PASS_THRESHOLD = 7;
 
 const SCENARIOS = {
 
-  guideWords: {
-    label: "Guide words",
-    contextHTML: `<b>Imported from MobyMax:</b> "Use Guide Words" — 35 attempts, 175 questions, <b>26.3%</b> accuracy. Got WORSE as practice volume increased in February, not better — a sign the concept was never solidly taught the first time.`,
-    CHAIN: ["Guide words (the tested skill)", "Comparing words past the first match", "Basic alphabetical order"],
-    Q: {
-      p1: {
-        skill: "Probe 1 · Guide words: cat–cow",
-        seed: "Real MobyMax catalog question (skill: Use Guide Words)",
-        prompt: `The guide words at the top of a dictionary page are <b>cat</b> and <b>cow</b>. Which word would be found on this page?`,
-        options: [
-          { h: "cloud", infer: "Correct — falls after 'cat' and before 'cow'. Confirming with a second version before ruling out carelessness, given his history on this skill.", go: ["q","p1b"] },
-          { h: "candle", infer: "'candle' comes before 'cat' — outside the range on the low side. Checking only the starting letters, not the full alphabetical position.", go: ["q","p2"] },
-          { h: "crown", infer: "'crown' comes after 'cow' — outside the range on the high side. Starts with the right letter but past the far boundary.", go: ["q","p2"] },
-          { h: "cabin", infer: "'cabin' comes before 'cat' — outside the range. Matches the first letter of both guide words but no positional check at all.", go: ["q","p2"] }
-        ]
-      },
-      p1b: {
-        skill: "Probe 1b · Guide words: march–mist (confirm)",
-        seed: "Real MobyMax catalog question (skill: Use Guide Words)",
-        prompt: `The guide words are <b>march</b> and <b>mist</b>. Which word would be found on this page?`,
-        options: [
-          { h: "melon", infer: "Correct again — given his flat/worsening history, two clean answers in a row is a genuine signal, not luck. Logging as a slip on the original test question.", go: ["d","careless"] },
-          { h: "maple", infer: "'maple' comes before 'march' — outside the range. Same pattern as the first probe: checks the letter, not the position.", go: ["q","p2"] },
-          { h: "moth", infer: "'moth' comes after 'mist' — outside the range on the high side.", go: ["q","p2"] },
-          { h: "mango", infer: "'mango' comes before 'march' — outside the range.", go: ["q","p2"] }
-        ]
-      },
-      p2: {
-        skill: "Probe 2 · Prerequisite: basic alphabetical order",
-        seed: "Generated variant",
-        prompt: `Which word comes first in alphabetical order — <b>desk</b> or <b>dog</b>?`,
-        options: [
-          { h: "desk", infer: "Correct — basic single-letter alphabetizing holds. Drilling one level deeper: comparing words past the first matching letter.", go: ["q","p3"] },
-          { h: "dog", infer: "Missed the second-letter comparison (e vs o) — basic alphabetical ordering itself is the break. This is the floor for this drill.", go: ["d","prereq_basic"] }
-        ]
-      },
-      p3: {
-        skill: "Probe 3 · Prerequisite: comparing past the first match",
-        seed: "Generated variant",
-        prompt: `Which word comes first alphabetically — <b>climb</b> or <b>cloud</b>?`,
-        options: [
-          { h: "climb", infer: "Correct — can compare letter-by-letter past a shared prefix. So the break isn't in alphabetizing at all — it's specifically in applying the rule to a guide-word RANGE (checking both bounds, not just one).", go: ["d","concept_gap"] },
-          { h: "cloud", infer: "Guessed once the first two letters matched instead of continuing the comparison. Multi-letter comparison is the broken prerequisite.", go: ["d","prereq_deep"] }
-        ]
-      }
-    },
-    D: {
-      careless: {
-        cause: "Careless error", tone: "ok", title: "No reteach needed",
-        note: "Two fresh guide-word questions in a row came back correct. Given how flat/worsening this skill has looked for months, that's worth double-checking again next session — but for this test question, log it as a slip.",
-        states: ["solid","assumed","assumed"], lesson: null
-      },
-      concept_gap: {
-        cause: "Concept-level gap", tone: "warn",
-        title: "Alphabetizing works — applying it to a range doesn't",
-        plan: ["between_range","guide_words_full"],
-        note: "The student alphabetizes correctly, including past a shared prefix — both prerequisite probes came back clean. The break is specifically in applying that skill to a guide-word RANGE: checking a word falls after the first guide word AND before the second, not just one side.",
-        mis: "you can alphabetize letter-by-letter just fine — the break is specifically in checking that a word falls between BOTH guide words, not just one.",
-        states: ["broken","solid","solid"],
-        lesson: ["Checking a word falls between two guide words — both bounds, not one", "Re-climb: full guide-words check with mixed examples"]
-      },
-      prereq_deep: {
-        cause: "Missing prerequisite", tone: "bad",
-        title: "Multi-letter comparison is the break",
-        plan: ["multiletter","between_range","guide_words_full"],
-        note: "Basic single-letter alphabetizing holds, but the student guesses once two words share a starting letter or two instead of continuing the letter-by-letter comparison. That's the base the reteach needs to rebuild from before guide words can work.",
-        mis: "single-letter alphabetizing holds, but comparing past a shared prefix (like climb vs. cloud) is where it breaks.",
-        states: ["blocked","broken","solid"],
-        lesson: ["Comparing words letter-by-letter past the first match", "Checking a word falls between two guide words", "Re-climb: full guide-words check"]
-      },
-      prereq_basic: {
-        cause: "Missing prerequisite — deep", tone: "bad",
-        title: "Basic alphabetical order is the break",
-        plan: ["basic_order","multiletter","between_range","guide_words_full"],
-        note: "This is the floor for this drill — sequencing two words alphabetically at all is where it breaks. Matches the deep-dive's read on this skill: never solidly taught the first time, which is why more MobyMax reps haven't moved it.",
-        mis: "this is the floor for this drill — sequencing two words alphabetically at all is where it breaks.",
-        states: ["blocked","blocked","broken"],
-        lesson: ["Alphabetical order, letter by letter", "Comparing words past the first match", "Checking a word falls between two guide words", "Re-climb: full guide-words check"]
-      }
-    },
-    TOPIC_TITLE: {
-      basic_order: "Alphabetical order, letter by letter",
-      multiletter: "Comparing words past the first match",
-      between_range: "Checking a word falls between two guide words",
-      guide_words_full: "Guide words (re-climb)"
-    },
-    PREREQ: { guide_words_full: "between_range", between_range: "multiletter", multiletter: "basic_order" },
-    THEORY: {
-      basic_order: {
-        main: "Alphabetical order compares words letter by letter until one letter differs. The word with the earlier letter at that position comes first.",
-        alt: "Think of the alphabet as a number line: A is 1, all the way to Z is 26. Compare each letter's 'number' until they differ.",
-        example: "bear vs. bird: both start with 'b', so compare the second letter — 'e' comes before 'i', so bear comes first."
-      },
-      multiletter: {
-        main: "When the first letters match, keep comparing letter by letter — second, then third — until you find one that's different. That letter decides the order.",
-        alt: "Walk down both words together, one letter at a time, like climbing side-by-side ladders. The first rung where they differ tells you which word comes first.",
-        example: "climb vs. cloud: c-l match, then 'i' vs 'o' — i comes before o, so climb comes first."
-      },
-      between_range: {
-        main: "A word belongs on a dictionary page only if it comes AFTER the first guide word AND BEFORE the second — both conditions, not just one.",
-        alt: "Picture the two guide words as fence posts. A word only belongs if it falls inside the fence — checking just one side isn't enough.",
-        example: "Guide words cat–cow: 'candle' comes before 'cat' (outside on one side); 'crown' comes after 'cow' (outside on the other); 'cloud' falls between both — inside the fence."
-      },
-      guide_words_full: {
-        main: "Full guide-words check: compare the target word to BOTH guide words, letter by letter, confirming it falls after the first and before the second.",
-        alt: "Same fence, same walk — putting both skills together: compare letter by letter, then check the word lands inside the fence on both sides.",
-        example: "Guide words march–mist: 'melon' — m matches both, then 'e' vs 'a' (after march) and 'e' vs 'i' (before mist) — melon belongs."
-      }
-    },
-    QUESTION_BANK: {
-      basic_order: [
-        { prompt: "Which word comes first alphabetically: <b>desk</b> or <b>dog</b>?", options: [{h:"desk",ok:true},{h:"dog",hint:"Compare the second letter: e comes before o."}] },
-        { prompt: "Which word comes first alphabetically: <b>bear</b> or <b>bird</b>?", options: [{h:"bear",ok:true},{h:"bird",hint:"Compare the second letter: e comes before i."}] },
-        { prompt: "Which word comes first alphabetically: <b>pear</b> or <b>plum</b>?", options: [{h:"pear",ok:true},{h:"plum",hint:"Compare the second letter: e comes before l."}] }
-      ],
-      multiletter: [
-        { prompt: "Which word comes first alphabetically: <b>climb</b> or <b>cloud</b>?", options: [{h:"climb",ok:true},{h:"cloud",hint:"c-l matches on both — compare the third letter: i comes before o."}] },
-        { prompt: "Which word comes first alphabetically: <b>bread</b> or <b>brake</b>?", options: [{h:"bread",ok:true},{h:"brake",hint:"b-r-a matches on both — compare the fourth letter: e comes before k."}] },
-        { prompt: "Which word comes first alphabetically: <b>trail</b> or <b>train</b>?", options: [{h:"trail",ok:true},{h:"train",hint:"tra matches on both — compare the fourth letter: i comes before n."}] }
-      ],
-      between_range: [
-        { prompt: "Guide words: <b>hat — hut</b>. Does <b>hop</b> belong on this page?", options: [{h:"Yes",ok:true},{h:"No",hint:"h-o falls after 'hat' and before 'hut' — check both letters."}] },
-        { prompt: "Guide words: <b>lamp — lock</b>. Does <b>list</b> belong on this page?", options: [{h:"Yes",ok:true},{h:"No",hint:"l-i falls after 'lamp' and before 'lock' — it belongs."}] },
-        { prompt: "Guide words: <b>pet — pin</b>. Does <b>pit</b> belong on this page?", options: [{h:"No",ok:true},{h:"Yes",hint:"'pit' comes after 'pin' — outside the range on the high side."}] }
-      ],
-      guide_words_full: [
-        { prompt: "Guide words: <b>cat — cow</b>. Which word belongs on this page?", options: [{h:"cloud",ok:true},{h:"candle",hint:"'candle' comes before 'cat' — outside the range."},{h:"crown",hint:"'crown' comes after 'cow' — outside the range."},{h:"cabin",hint:"'cabin' comes before 'cat' — outside the range."}] },
-        { prompt: "Guide words: <b>march — mist</b>. Which word belongs on this page?", options: [{h:"melon",ok:true},{h:"maple",hint:"'maple' comes before 'march' — outside the range."},{h:"moth",hint:"'moth' comes after 'mist' — outside the range."},{h:"mango",hint:"'mango' comes before 'march' — outside the range."}] },
-        { prompt: "Guide words: <b>desk — dust</b>. Which word belongs on this page?", options: [{h:"drum",ok:true},{h:"deer",hint:"'deer' comes before 'desk' — outside the range."},{h:"dye",hint:"'dye' comes after 'dust' — outside the range."},{h:"cart",hint:"'cart' doesn't even start with 'd' — wrong page."}] }
-      ]
-    }
-  },
-
   verbTense: {
     label: "Perfect verb tense",
-    contextHTML: `<b>Imported from MobyMax:</b> "Use the Correct Perfect Verb Tense" — his lowest skill at <b>22.9%</b>, part of a 6-skill verb-tense cluster flat at 37–52% for five straight months despite heavy practice.`,
     CHAIN: ["Perfect verb tense (the tested skill)", "Past participle forms", "Placing events on a timeline"],
     Q: {
       p1: {
         skill: "Probe 1 · She ___ her homework already",
-        seed: "Based on his Language Coaching Guide worked example",
         prompt: `Choose the correct verb form. She ___ her homework already, so she can watch a movie now.`,
         options: [
-          { h: "has finished", infer: "Correct — present perfect. Confirming with a second version before ruling out carelessness, given five months of flat accuracy on this cluster.", go: ["q","p1b"] },
-          { h: "finish", infer: "Base form — skips the has/have + participle construction entirely.", go: ["q","p2"] },
-          { h: "finished", infer: "Simple past — misses the 'already, relevant now' signal that calls for present perfect.", go: ["q","p2"] },
-          { h: "will finish", infer: "Future tense — misreads the timing; the homework is already done.", go: ["q","p2"] }
+          { h: "has finished", infer: "correct", go: ["q","p1b"] },
+          { h: "finish", infer: "wrong", go: ["q","p2"] },
+          { h: "finished", infer: "wrong", go: ["q","p2"] },
+          { h: "will finish", infer: "wrong", go: ["q","p2"] }
         ]
       },
       p1b: {
         skill: "Probe 1b · By the time the bell rang (confirm)",
-        seed: "Generated variant",
         prompt: `By the time the bell rang, the class ___ the entire chapter.`,
         options: [
-          { h: "had read", infer: "Correct again — given five months of flat data, two clean answers in a row is a real signal. Logging as a slip on the original test question.", go: ["d","careless"] },
-          { h: "read", infer: "Simple past — doesn't show the reading finished BEFORE the bell rang.", go: ["q","p2"] },
-          { h: "has read", infer: "Present perfect doesn't fit here — this needs 'had' for a past-before-past relationship.", go: ["q","p2"] },
-          { h: "will read", infer: "Future tense, but the bell has already rung.", go: ["q","p2"] }
+          { h: "had read", infer: "correct", go: ["d","careless"] },
+          { h: "read", infer: "wrong", go: ["q","p2"] },
+          { h: "has read", infer: "wrong", go: ["q","p2"] },
+          { h: "will read", infer: "wrong", go: ["q","p2"] }
         ]
       },
       p2: {
         skill: "Probe 2 · Prerequisite: placing events on a timeline",
-        seed: "Generated variant",
         prompt: `Which sentence describes something that happened BEFORE another past event?`,
         options: [
-          { h: "I had already eaten dinner when she arrived.", infer: "Correct — can identify a past-before-past relationship conceptually. Drilling one level deeper: the past participle FORM itself.", go: ["q","p3"] },
-          { h: "I ate dinner.", infer: "Only names one past action — doesn't establish which of two events came first. The timeline concept itself is the break. This is the floor for this drill.", go: ["d","timeline_gap"] }
+          { h: "I had already eaten dinner when she arrived.", infer: "correct", go: ["q","p3"] },
+          { h: "I ate dinner.", infer: "wrong", go: ["d","timeline_gap"] }
         ]
       },
       p3: {
         skill: "Probe 3 · Prerequisite: past participle form",
-        seed: "Generated variant",
         prompt: `Which is the correct past participle of "write" (as in "She has ___ a letter")?`,
         options: [
-          { h: "written", infer: "Correct — irregular past participles hold. So the break isn't the timeline or the participle forms — it's specifically COMBINING them into the has/have/had + participle construction.", go: ["d","concept_gap"] },
-          { h: "writed", infer: "Regularized an irregular verb (should be 'written', not 'writed'). Past participle forms are the broken prerequisite.", go: ["d","participle_gap"] }
+          { h: "written", infer: "correct", go: ["d","concept_gap"] },
+          { h: "writed", infer: "wrong", go: ["d","participle_gap"] }
         ]
       }
     },
     D: {
-      careless: {
-        cause: "Careless error", tone: "ok", title: "No reteach needed",
-        note: "Two fresh perfect-tense questions in a row came back correct. Given five months of flat data, this is worth watching closely next session — but for this test question, log it as a slip.",
-        states: ["solid","assumed","assumed"], lesson: null
-      },
-      concept_gap: {
-        cause: "Concept-level gap", tone: "warn",
+      careless: { cause: "Careless error", tone: "ok", title: "No reteach needed",
+        note: "Two fresh perfect-tense questions in a row came back correct — logged as a slip on the original test question.",
+        states: ["solid","assumed","assumed"], lesson: null },
+      concept_gap: { cause: "Concept-level gap", tone: "warn",
         title: "Timeline and participles both hold — combining them doesn't",
         plan: ["combine","verb_tense_full"],
-        note: "The student places events on a timeline correctly and knows irregular participle forms — both prerequisite probes came back clean. The break is specifically in combining them: pairing the right helper word (has/have/had) with the right participle.",
+        note: "Places events on a timeline correctly and knows irregular participle forms — both prerequisite probes came back clean. The break is specifically in combining them.",
         mis: "you know the timeline and the correct participle forms — combining them into has/have/had + participle is where it breaks.",
         states: ["broken","solid","solid"],
-        lesson: ["Combining has/have/had + the correct participle", "Re-climb: full perfect-tense check with mixed examples"]
-      },
-      participle_gap: {
-        cause: "Missing prerequisite", tone: "bad",
+        lesson: ["Combining has/have/had + the correct participle", "Re-climb: full perfect-tense check with mixed examples"] },
+      participle_gap: { cause: "Missing prerequisite", tone: "bad",
         title: "Past participle forms are the break",
         plan: ["participles","combine","verb_tense_full"],
-        note: "The student places events on a timeline correctly, but regularizes irregular verbs (writed instead of written). Past participle forms are the base the reteach needs to rebuild from before the full construction can work.",
+        note: "Places events on a timeline correctly, but regularizes irregular verbs (writed instead of written).",
         mis: "you place events on a timeline correctly, but irregular participle forms (like 'written' instead of 'writed') are where it breaks.",
         states: ["blocked","broken","solid"],
-        lesson: ["Irregular past participle forms", "Combining has/have/had + participle", "Re-climb: full perfect-tense check"]
-      },
-      timeline_gap: {
-        cause: "Missing prerequisite — deep", tone: "bad",
+        lesson: ["Irregular past participle forms", "Combining has/have/had + participle", "Re-climb: full perfect-tense check"] },
+      timeline_gap: { cause: "Missing prerequisite — deep", tone: "bad",
         title: "Placing events on a timeline is the break",
         plan: ["timeline","participles","combine","verb_tense_full"],
-        note: "This is the floor for this drill — the student can't yet establish that one past action happened before another. Matches the coaching guide's read: needs direct instruction on the past-present-future line, not more independent practice.",
+        note: "This is the floor for this drill — can't yet establish that one past action happened before another.",
         mis: "the gap sits below participles — placing two past events in order on a timeline is where it breaks first.",
         states: ["blocked","blocked","broken"],
-        lesson: ["Placing events on a timeline", "Past participle forms", "Combining has/have/had + participle", "Re-climb: full perfect-tense check"]
-      }
+        lesson: ["Placing events on a timeline", "Past participle forms", "Combining has/have/had + participle", "Re-climb: full perfect-tense check"] }
     },
     TOPIC_TITLE: {
       timeline: "Placing events on a timeline",
@@ -362,63 +217,272 @@ const SCENARIOS = {
     PREREQ: { verb_tense_full: "combine", combine: "participles", participles: "timeline" },
     THEORY: {
       timeline: {
-        main: "Every action happens at a point in time. When two actions both happened in the past, one can still happen BEFORE the other — that's what perfect tense signals.",
+        main: "Most sentences describe one thing happening. But sometimes a sentence needs to show that ONE past event happened BEFORE another past event — not just that both happened in the past, but which one came first. That's exactly the situation perfect tense is built for.",
         alt: "Picture a line: Past — Present — Future. Now imagine a second, earlier point on the past side — that's the 'past before the past' moment perfect tense marks.",
-        example: "'I had already eaten dinner when she arrived' — eating dinner happened, then arriving happened. Both are in the past, but eating came first."
+        steps: ["Look for two events in the sentence, both in the past.", "Figure out which one happened first.", "The earlier event gets 'had' + the past participle to mark it as happening before the other one."],
+        examples: [
+          "'I had already eaten dinner when she arrived' — eating dinner happened first, then arriving happened. 'Had eaten' marks the earlier event.",
+          "'By noon, he had left the building' — leaving happened before noon (the reference point), so it gets 'had left'."
+        ]
       },
       participles: {
-        main: "Perfect tense pairs has/have/had with a special verb form called the past participle. Regular verbs just add -ed (walked), but many common verbs are irregular (write → written, not writed).",
+        main: "Perfect tense always pairs a helper word (has, have, or had) with a special form of the verb called the past participle. Regular verbs just add -ed (walk → walked), but a lot of common verbs are irregular — their past participle doesn't follow that pattern, and guessing '-ed' gets it wrong.",
         alt: "Think of each irregular verb as having its own partner word for has/have/had — write's partner is written, go's partner is gone, not the -ed you'd expect.",
-        example: "'go' becomes 'gone' (has gone), not 'goed'. 'write' becomes 'written' (has written), not 'writed'."
+        steps: ["Check if the verb is regular (just add -ed) or irregular.", "For irregular verbs, the participle has to be learned — it doesn't follow a rule.", "Never regularize an irregular verb by adding -ed to it."],
+        examples: [
+          "'go' → 'gone' (has gone), not 'goed'.",
+          "'write' → 'written' (has written), not 'writed'."
+        ]
       },
       combine: {
-        main: "Perfect tense = has/have/had + the past participle. Has/have signals present perfect (a past action relevant now); had signals past perfect (a past action before another past action).",
+        main: "Perfect tense is always: has/have/had + past participle. Which helper word you use depends on timing — has or have for something that happened in the past but still matters now (present perfect), and had for something that happened before another past event (past perfect).",
         alt: "It's a two-piece puzzle: pick the right helper word for when it happened, then attach the correct participle for the verb.",
-        example: "'She has finished her homework' (present perfect — done, matters now). 'She had finished before dinner' (past perfect — done before another past moment)."
+        steps: ["Decide: is this 'still relevant now' (present perfect) or 'before another past event' (past perfect)?", "Pick has/have for present perfect, had for past perfect.", "Attach the correct past participle — never the plain past-tense form."],
+        examples: [
+          "'She has finished her homework' — present perfect: it's done, and that matters right now.",
+          "'She had finished before dinner' — past perfect: it was done before another past moment."
+        ]
       },
       verb_tense_full: {
-        main: "Full check: identify the timeline relationship first, then pick has/have/had accordingly, then attach the correct past participle for the verb.",
+        main: "Putting the whole thing together: first figure out the timing, then pick the right helper word, then attach the correct past participle for that verb — not the plain past tense, and not a regularized -ed guess.",
         alt: "Same three-step puzzle, put together: when did it happen relative to now or another event, which helper word matches, which participle matches the verb.",
-        example: "'By the time the bell rang, the class had read the entire chapter' — reading finished before the bell (past-before-past), so 'had' + 'read'."
+        steps: ["Identify the timing signal — is there a 'before' relationship, or just an ongoing 'already' relevance?", "Choose had (past-before-past) or has/have (present relevance).", "Use the correct past participle for the verb."],
+        examples: [
+          "'By the time the bell rang, the class had read the entire chapter' — reading finished before the bell, so 'had' + 'read'.",
+          "'He has traveled to three countries' — an ongoing fact that still matters now, so 'has' + 'traveled'."
+        ]
       }
     },
     QUESTION_BANK: {
       timeline: [
-        { prompt: "Which sentence describes something that happened BEFORE another past event?", options: [{h:"I had already eaten dinner when she arrived.",ok:true},{h:"I ate dinner.",hint:"This only tells us one past action, not which of two came first."}] },
-        { prompt: "Which sentence shows a past action finished before a later point in the past?", options: [{h:"By noon, he had left the building.",ok:true},{h:"He left the building.",hint:"There's no second past moment here to compare timing to."}] },
-        { prompt: "Which sentence signals an action completed before another past event?", options: [{h:"She had packed her bags before the taxi arrived.",ok:true},{h:"She packed her bags.",hint:"There's no second past event here to compare timing to."}] }
+        { prompt: "Which sentence describes something that happened BEFORE another past event?", options: [{h:"I had already eaten dinner when she arrived.",ok:true,explain:"'Had eaten' marks the earlier of two past events."},{h:"I ate dinner.",hint:"This only names one past action — no second event to compare timing to."}] },
+        { prompt: "Which sentence shows a past action finished before a later point in the past?", options: [{h:"By noon, he had left the building.",ok:true,explain:"'Had left' places the leaving before the reference point, noon."},{h:"He left the building.",hint:"There's no second past moment here to compare timing to."}] },
+        { prompt: "Which sentence signals an action completed before another past event?", options: [{h:"She had packed her bags before the taxi arrived.",ok:true,explain:"Packing happened, then the taxi arrived — 'had packed' marks the earlier one."},{h:"She packed her bags.",hint:"There's no second past event here to compare timing to."}] },
+        { prompt: "Which sentence describes something that happened BEFORE another past event?", options: [{h:"The movie had already started when we got to the theater.",ok:true,explain:"The movie starting came before arriving — that's why it's 'had started'."},{h:"We got to the theater.",hint:"Only one event is named — nothing to compare the timing to."}] },
+        { prompt: "Which sentence shows a past action finished before a later past event?", options: [{h:"They had finished the project before the deadline arrived.",ok:true,explain:"Finishing came before the deadline — 'had finished' marks the earlier event."},{h:"They finished the project.",hint:"There's no second past event to compare this to."}] },
+        { prompt: "Which sentence describes something that happened BEFORE another past event?", options: [{h:"By the time I woke up, the sun had already risen.",ok:true,explain:"The sun rising happened before waking up — that's the 'had risen'."},{h:"The sun rose.",hint:"Only one event is described — nothing to compare timing to."}] },
+        { prompt: "Which sentence shows a past action finished before a later past event?", options: [{h:"She had cleaned her room before her friends came over.",ok:true,explain:"Cleaning happened first, then the friends arrived."},{h:"Her friends came over.",hint:"This only names one event, with no earlier action to compare it to."}] },
+        { prompt: "Which sentence describes something that happened BEFORE another past event?", options: [{h:"The train had left the station before we reached the platform.",ok:true,explain:"The train leaving came before reaching the platform."},{h:"We reached the platform.",hint:"Only one event — nothing to compare the timing to."}] },
+        { prompt: "Which sentence shows a past action finished before a later past event?", options: [{h:"He had studied for hours before the test began.",ok:true,explain:"Studying happened first, then the test began."},{h:"He studied for hours.",hint:"There's no second past event here to compare timing to."}] },
+        { prompt: "Which sentence describes something that happened BEFORE another past event?", options: [{h:"By the time the teacher arrived, the students had already lined up.",ok:true,explain:"Lining up happened before the teacher arrived — 'had lined up'."},{h:"The students lined up.",hint:"Only one event is named here, with no comparison point."}] }
       ],
       participles: [
-        { prompt: `Which is the correct past participle of "write" (as in "She has ___ a letter")?`, options: [{h:"written",ok:true},{h:"writed",hint:"'write' is irregular — it doesn't just add -ed."}] },
-        { prompt: `Which is the correct past participle of "go" (as in "They have ___ home")?`, options: [{h:"gone",ok:true},{h:"goed",hint:"'go' is irregular — its participle is 'gone', not 'goed'."}] },
-        { prompt: `Which is the correct past participle of "eat" (as in "He had ___ before we arrived")?`, options: [{h:"eaten",ok:true},{h:"eated",hint:"'eat' is irregular — its participle is 'eaten', not 'eated'."}] }
+        { prompt: `Which is the correct past participle of "write" (as in "She has ___ a letter")?`, options: [{h:"written",ok:true,explain:"'write' is irregular — its participle is 'written'."},{h:"writed",hint:"'write' is irregular — it doesn't just add -ed."}] },
+        { prompt: `Which is the correct past participle of "go" (as in "They have ___ home")?`, options: [{h:"gone",ok:true,explain:"'go' is irregular — its participle is 'gone'."},{h:"goed",hint:"'go' is irregular — its participle is 'gone', not 'goed'."}] },
+        { prompt: `Which is the correct past participle of "eat" (as in "He had ___ before we arrived")?`, options: [{h:"eaten",ok:true,explain:"'eat' is irregular — its participle is 'eaten'."},{h:"eated",hint:"'eat' is irregular — its participle is 'eaten', not 'eated'."}] },
+        { prompt: `Which is the correct past participle of "take" (as in "She has ___ the bus every day this week")?`, options: [{h:"taken",ok:true,explain:"'take' is irregular — its participle is 'taken'."},{h:"taked",hint:"'take' is irregular — its participle is 'taken', not 'taked'."}] },
+        { prompt: `Which is the correct past participle of "break" (as in "He has ___ his promise before")?`, options: [{h:"broken",ok:true,explain:"'break' is irregular — its participle is 'broken'."},{h:"breaked",hint:"'break' is irregular — its participle is 'broken', not 'breaked'."}] },
+        { prompt: `Which is the correct past participle of "speak" (as in "They have ___ to the principal about it")?`, options: [{h:"spoken",ok:true,explain:"'speak' is irregular — its participle is 'spoken'."},{h:"speaked",hint:"'speak' is irregular — its participle is 'spoken', not 'speaked'."}] },
+        { prompt: `Which is the correct past participle of "choose" (as in "We had already ___ our seats before the movie started")?`, options: [{h:"chosen",ok:true,explain:"'choose' is irregular — its participle is 'chosen'."},{h:"choosed",hint:"'choose' is irregular — its participle is 'chosen', not 'choosed'."}] },
+        { prompt: `Which is the correct past participle of "freeze" (as in "The lake had ___ solid by January")?`, options: [{h:"frozen",ok:true,explain:"'freeze' is irregular — its participle is 'frozen'."},{h:"freezed",hint:"'freeze' is irregular — its participle is 'frozen', not 'freezed'."}] },
+        { prompt: `Which is the correct past participle of "steal" (as in "Someone has ___ my pencil case")?`, options: [{h:"stolen",ok:true,explain:"'steal' is irregular — its participle is 'stolen'."},{h:"stealed",hint:"'steal' is irregular — its participle is 'stolen', not 'stealed'."}] },
+        { prompt: `Which is the correct past participle of "fall" (as in "The leaves had already ___ by November")?`, options: [{h:"fallen",ok:true,explain:"'fall' is irregular — its participle is 'fallen'."},{h:"falled",hint:"'fall' is irregular — its participle is 'fallen', not 'falled'."}] }
       ],
       combine: [
-        { prompt: "Choose the correct verb form. She ___ (finish) her project, so she's free tonight.", options: [{h:"has finished",ok:true},{h:"finish",hint:"This misses the has/have + participle construction entirely."},{h:"will finish",hint:"This describes the future, not something already done."}] },
-        { prompt: "Choose the correct verb form. They ___ (see) that movie three times already.", options: [{h:"have seen",ok:true},{h:"seen",hint:"'seen' needs a helper word — has/have — in front of it."},{h:"see",hint:"This is present tense, not present perfect."}] },
-        { prompt: "Choose the correct verb form. By the time we got there, the show ___ (start) already.", options: [{h:"had started",ok:true},{h:"started",hint:"This doesn't show the show starting BEFORE another past moment."},{h:"has started",hint:"This is present perfect, but the sentence needs 'had' for past-before-past."}] }
+        { prompt: "Choose the correct verb form. She ___ (finish) her project, so she's free tonight.", options: [{h:"has finished",ok:true,explain:"Present perfect — done, and it matters right now."},{h:"finish",hint:"This misses the has/have + participle construction entirely."},{h:"will finish",hint:"This describes the future, not something already done."}] },
+        { prompt: "Choose the correct verb form. They ___ (see) that movie three times already.", options: [{h:"have seen",ok:true,explain:"Present perfect — an ongoing count that's still true now."},{h:"seen",hint:"'seen' needs a helper word — has/have — in front of it."},{h:"see",hint:"This is present tense, not present perfect."}] },
+        { prompt: "Choose the correct verb form. By the time we got there, the show ___ (start) already.", options: [{h:"had started",ok:true,explain:"Past perfect — the show starting came before 'we got there'."},{h:"started",hint:"This doesn't show the show starting BEFORE another past moment."},{h:"has started",hint:"This is present perfect, but the sentence needs 'had' for past-before-past."}] },
+        { prompt: "Choose the correct verb form. By the time she called, I ___ (leave) already.", options: [{h:"had left",ok:true,explain:"Past perfect — leaving happened before her call."},{h:"left",hint:"This doesn't show leaving happened before her call."},{h:"have left",hint:"This is present perfect, but the sentence needs 'had' for past-before-past."}] },
+        { prompt: "Choose the correct verb form. He ___ (win) three trophies so far this year.", options: [{h:"has won",ok:true,explain:"Present perfect — an ongoing achievement that's still true now."},{h:"won",hint:"This misses the has/have + participle construction."},{h:"will win",hint:"This is future, but he already has the trophies."}] },
+        { prompt: "Choose the correct verb form. They ___ (build) the treehouse before summer ended.", options: [{h:"had built",ok:true,explain:"Past perfect — building finished before summer ended."},{h:"built",hint:"This doesn't show this happened before another past moment."},{h:"have built",hint:"Present perfect doesn't fit — this needs 'had' for past-before-past."}] },
+        { prompt: "Choose the correct verb form. We ___ (visit) that museum twice already.", options: [{h:"have visited",ok:true,explain:"Present perfect — an ongoing count still true now."},{h:"visited",hint:"This misses the has/have + participle construction."},{h:"will visit",hint:"This is future, but the visits already happened."}] },
+        { prompt: "Choose the correct verb form. By the time the movie ended, I ___ (fall) asleep.", options: [{h:"had fallen",ok:true,explain:"Past perfect — falling asleep happened before the movie ended."},{h:"fell",hint:"This doesn't show falling asleep happened before the movie ended."},{h:"have fallen",hint:"Present perfect doesn't fit — this needs 'had'."}] },
+        { prompt: "Choose the correct verb form. She ___ (break) her arm once before.", options: [{h:"has broken",ok:true,explain:"Present perfect — a past experience that's still relevant."},{h:"broke",hint:"This misses the has/have + participle construction."},{h:"will break",hint:"This is future, but it already happened."}] },
+        { prompt: "Choose the correct verb form. By the time help arrived, the fire ___ (spread) through the whole building.", options: [{h:"had spread",ok:true,explain:"Past perfect — spreading happened before help arrived."},{h:"spread",hint:"This doesn't show the fire spreading happened before help arrived."},{h:"has spread",hint:"Present perfect doesn't fit — this needs 'had' for past-before-past."}] }
       ],
       verb_tense_full: [
-        { prompt: "She ___ her homework already, so she can watch a movie now.", options: [{h:"has finished",ok:true},{h:"finish",hint:"Base form skips the has/have + participle construction."},{h:"finished",hint:"Simple past misses the 'already, relevant now' signal — that calls for present perfect."},{h:"will finish",hint:"This is future tense, but the homework is already done."}] },
-        { prompt: "By the time the bell rang, the class ___ the entire chapter.", options: [{h:"had read",ok:true},{h:"read",hint:"Simple past doesn't show the reading finished before the bell rang."},{h:"has read",hint:"Present perfect doesn't fit — this needs 'had' for past-before-past."},{h:"will read",hint:"This is future tense, but the bell already rang."}] },
-        { prompt: "He ___ to three countries before he turned eighteen.", options: [{h:"had traveled",ok:true},{h:"travels",hint:"Present tense doesn't show this happened before turning eighteen."},{h:"will travel",hint:"Future tense doesn't fit a completed past event."},{h:"traveling",hint:"This isn't a complete verb form on its own."}] }
+        { prompt: "She ___ her homework already, so she can watch a movie now.", options: [{h:"has finished",ok:true,explain:"Present perfect — done, and it matters right now."},{h:"finish",hint:"Base form skips the has/have + participle construction."},{h:"finished",hint:"Simple past misses the 'already, relevant now' signal — that calls for present perfect."},{h:"will finish",hint:"This is future tense, but the homework is already done."}] },
+        { prompt: "By the time the bell rang, the class ___ the entire chapter.", options: [{h:"had read",ok:true,explain:"Past perfect — reading finished before the bell rang."},{h:"read",hint:"Simple past doesn't show the reading finished before the bell rang."},{h:"has read",hint:"Present perfect doesn't fit — this needs 'had' for past-before-past."},{h:"will read",hint:"This is future tense, but the bell already rang."}] },
+        { prompt: "He ___ to three countries before he turned eighteen.", options: [{h:"had traveled",ok:true,explain:"Past perfect — the traveling happened before turning eighteen."},{h:"travels",hint:"Present tense doesn't show this happened before turning eighteen."},{h:"will travel",hint:"Future tense doesn't fit a completed past event."},{h:"traveling",hint:"This isn't a complete verb form on its own."}] },
+        { prompt: "By the time I got home, my sister ___ (cook) dinner already.", options: [{h:"had cooked",ok:true,explain:"Past perfect — cooking finished before I got home."},{h:"cooks",hint:"Present tense doesn't fit a past scenario."},{h:"will cook",hint:"Future, but dinner's already done."},{h:"cooking",hint:"This isn't a complete verb form on its own."}] },
+        { prompt: "They ___ (see) that movie three times before it left theaters.", options: [{h:"had seen",ok:true,explain:"Past perfect — the viewings happened before the movie left theaters."},{h:"seen",hint:"'seen' is missing the helper word 'had'."},{h:"sees",hint:"Present tense doesn't fit here."},{h:"will see",hint:"Future, but this already happened before the movie left."}] },
+        { prompt: "She ___ (write) two books by the time she turned twenty.", options: [{h:"had written",ok:true,explain:"Past perfect — writing happened before turning twenty."},{h:"writed",hint:"'write' is irregular — it should be 'written', not 'writed'."},{h:"writes",hint:"Present tense doesn't fit here."},{h:"will write",hint:"Future doesn't fit 'by the time she turned twenty'."}] },
+        { prompt: "We ___ (finish) the race before it started raining.", options: [{h:"had finished",ok:true,explain:"Past perfect — finishing came before the rain started."},{h:"finish",hint:"This misses the has/have/had + participle construction."},{h:"finishes",hint:"Present tense doesn't fit here."},{h:"will finish",hint:"Future, but the race already ended before the rain."}] },
+        { prompt: "He ___ (break) the record twice this season.", options: [{h:"has broken",ok:true,explain:"Present perfect — an ongoing achievement, true right now."},{h:"breaked",hint:"'break' is irregular — it should be 'broken', not 'breaked'."},{h:"breaks",hint:"Present tense alone doesn't capture the 'so far' sense — that needs present perfect."},{h:"will break",hint:"Future, but it already happened."}] },
+        { prompt: "By the time help arrived, she ___ (go) to get water herself.", options: [{h:"had gone",ok:true,explain:"Past perfect — going happened before help arrived."},{h:"goed",hint:"'go' is irregular — it should be 'gone', not 'goed'."},{h:"goes",hint:"Present tense doesn't fit here."},{h:"will go",hint:"Future, but this already happened before help arrived."}] },
+        { prompt: "They ___ (eat) dinner before the movie started.", options: [{h:"had eaten",ok:true,explain:"Past perfect — eating happened before the movie started."},{h:"eated",hint:"'eat' is irregular — it should be 'eaten', not 'eated'."},{h:"eats",hint:"Present tense doesn't fit here."},{h:"will eat",hint:"Future, but this already happened before the movie."}] }
+      ]
+    }
+  },
+
+  guideWords: {
+    label: "Guide words",
+    CHAIN: ["Guide words (the tested skill)", "Comparing words past the first match", "Basic alphabetical order"],
+    Q: {
+      p1: {
+        skill: "Probe 1 · Guide words: cat–cow",
+        prompt: `The guide words at the top of a dictionary page are <b>cat</b> and <b>cow</b>. Which word would be found on this page?`,
+        options: [
+          { h: "cloud", infer: "correct", go: ["q","p1b"] },
+          { h: "candle", infer: "wrong", go: ["q","p2"] },
+          { h: "crown", infer: "wrong", go: ["q","p2"] },
+          { h: "cabin", infer: "wrong", go: ["q","p2"] }
+        ]
+      },
+      p1b: {
+        skill: "Probe 1b · Guide words: march–mist (confirm)",
+        prompt: `The guide words are <b>march</b> and <b>mist</b>. Which word would be found on this page?`,
+        options: [
+          { h: "melon", infer: "correct", go: ["d","careless"] },
+          { h: "maple", infer: "wrong", go: ["q","p2"] },
+          { h: "moth", infer: "wrong", go: ["q","p2"] },
+          { h: "mango", infer: "wrong", go: ["q","p2"] }
+        ]
+      },
+      p2: {
+        skill: "Probe 2 · Prerequisite: basic alphabetical order",
+        prompt: `Which word comes first in alphabetical order — <b>desk</b> or <b>dog</b>?`,
+        options: [
+          { h: "desk", infer: "correct", go: ["q","p3"] },
+          { h: "dog", infer: "wrong", go: ["d","prereq_basic"] }
+        ]
+      },
+      p3: {
+        skill: "Probe 3 · Prerequisite: comparing past the first match",
+        prompt: `Which word comes first alphabetically — <b>climb</b> or <b>cloud</b>?`,
+        options: [
+          { h: "climb", infer: "correct", go: ["d","concept_gap"] },
+          { h: "cloud", infer: "wrong", go: ["d","prereq_deep"] }
+        ]
+      }
+    },
+    D: {
+      careless: { cause: "Careless error", tone: "ok", title: "No reteach needed",
+        note: "Two fresh guide-word questions in a row came back correct — logged as a slip on the original test question.",
+        states: ["solid","assumed","assumed"], lesson: null },
+      concept_gap: { cause: "Concept-level gap", tone: "warn",
+        title: "Alphabetizing works — applying it to a range doesn't",
+        plan: ["between_range","guide_words_full"],
+        note: "Alphabetizes correctly, including past a shared prefix — both prerequisite probes came back clean. The break is specifically in checking that a word falls between BOTH guide words.",
+        mis: "you can alphabetize letter-by-letter just fine — the break is specifically in checking that a word falls between BOTH guide words, not just one.",
+        states: ["broken","solid","solid"],
+        lesson: ["Checking a word falls between two guide words — both bounds, not one", "Re-climb: full guide-words check with mixed examples"] },
+      prereq_deep: { cause: "Missing prerequisite", tone: "bad",
+        title: "Multi-letter comparison is the break",
+        plan: ["multiletter","between_range","guide_words_full"],
+        note: "Basic single-letter alphabetizing holds, but guesses once two words share a starting letter or two instead of continuing the letter-by-letter comparison.",
+        mis: "single-letter alphabetizing holds, but comparing past a shared prefix (like climb vs. cloud) is where it breaks.",
+        states: ["blocked","broken","solid"],
+        lesson: ["Comparing words letter-by-letter past the first match", "Checking a word falls between two guide words", "Re-climb: full guide-words check"] },
+      prereq_basic: { cause: "Missing prerequisite — deep", tone: "bad",
+        title: "Basic alphabetical order is the break",
+        plan: ["basic_order","multiletter","between_range","guide_words_full"],
+        note: "This is the floor for this drill — sequencing two words alphabetically at all is where it breaks.",
+        mis: "this is the floor for this drill — sequencing two words alphabetically at all is where it breaks.",
+        states: ["blocked","blocked","broken"],
+        lesson: ["Alphabetical order, letter by letter", "Comparing words past the first match", "Checking a word falls between two guide words", "Re-climb: full guide-words check"] }
+    },
+    TOPIC_TITLE: {
+      basic_order: "Alphabetical order, letter by letter",
+      multiletter: "Comparing words past the first match",
+      between_range: "Checking a word falls between two guide words",
+      guide_words_full: "Guide words (re-climb)"
+    },
+    PREREQ: { guide_words_full: "between_range", between_range: "multiletter", multiletter: "basic_order" },
+    THEORY: {
+      basic_order: {
+        main: "Alphabetical order works by comparing two words letter by letter, left to right, until you find a letter that's different. Whichever word has the earlier letter — the one closer to A — comes first. If the very first letters are the same, move on to the second letter, and so on.",
+        alt: "Think of the alphabet as a number line: A is 1, all the way to Z is 26. Compare each letter's 'number' until they differ.",
+        steps: ["Line up the two words and compare their first letters.", "If the first letters match, move to the second letter — that's usually where it's decided.", "Whichever word has the earlier letter at the first point of difference comes first."],
+        examples: [
+          "bear vs. bird — both start with 'b', so compare the second letter: 'e' comes before 'i', so bear comes first.",
+          "sun vs. sea — both start with 's', so compare the second letter: 'e' comes before 'u', so sea comes first."
+        ]
+      },
+      multiletter: {
+        main: "Sometimes two words share more than just the first letter — they might match for two, three, or even four letters in a row. When that happens, keep comparing letter by letter until you finally reach one that's different. That letter — wherever it shows up — decides the order.",
+        alt: "Walk down both words together, one letter at a time, like climbing side-by-side ladders. The first rung where they differ tells you which word comes first.",
+        steps: ["Compare letter by letter, left to right.", "Every time the letters match, move to the next position.", "Stop at the first letter that's different, and use that one to decide the order."],
+        examples: [
+          "climb vs. cloud — c-l match, then 'i' vs 'o': i comes first, so climb comes before cloud.",
+          "stone vs. storm — s-t-o match, then 'n' vs 'r': n comes first, so stone comes before storm."
+        ]
+      },
+      between_range: {
+        main: "The two words at the top of a dictionary or glossary page are called guide words. They show the very first and very last entries on that page. A word only belongs on that page if it comes AFTER the first guide word alphabetically AND BEFORE the second one — both have to be true, not just one.",
+        alt: "Picture the two guide words as fence posts. A word only belongs on the page if it falls inside the fence — checking just one side isn't enough.",
+        steps: ["Compare your word to the FIRST guide word — does it come after it?", "Compare your word to the SECOND guide word — does it come before it?", "Only if both checks pass does the word belong on that page."],
+        examples: [
+          "Guide words cat–cow: 'crown' comes after 'cat' ✓, but it also comes after 'cow' — it fails the second check, so it does NOT belong.",
+          "Guide words cat–cow: 'cloud' comes after 'cat' ✓ and before 'cow' ✓ — it passes both checks, so it belongs."
+        ]
+      },
+      guide_words_full: {
+        main: "Putting it all together: to find where a word belongs, compare it letter by letter against BOTH guide words. It has to land after the first one and before the second one. If it fails either check — even by one letter — it belongs on a different page.",
+        alt: "Same fence, same walk — putting both skills together: compare letter by letter, then check the word lands inside the fence on both sides.",
+        steps: ["Compare letter by letter to the first guide word.", "Compare letter by letter to the second guide word.", "The word only belongs if it passes both comparisons."],
+        examples: [
+          "Guide words march–mist: 'melon' comes after march (m-e vs m-a) and before mist (m-e vs m-i) — it belongs.",
+          "Guide words desk–dust: 'drum' comes after desk (d-r vs d-e) and before dust (d-r vs d-u) — it belongs."
+        ]
+      }
+    },
+    QUESTION_BANK: {
+      basic_order: [
+        { prompt: "Which word comes first alphabetically: <b>desk</b> or <b>dog</b>?", options: [{h:"desk",ok:true,explain:"Second letter: e comes before o."},{h:"dog",hint:"Compare the second letter: e comes before o."}] },
+        { prompt: "Which word comes first alphabetically: <b>bear</b> or <b>bird</b>?", options: [{h:"bear",ok:true,explain:"Second letter: e comes before i."},{h:"bird",hint:"Compare the second letter: e comes before i."}] },
+        { prompt: "Which word comes first alphabetically: <b>pear</b> or <b>plum</b>?", options: [{h:"pear",ok:true,explain:"Second letter: e comes before l."},{h:"plum",hint:"Compare the second letter: e comes before l."}] },
+        { prompt: "Which word comes first alphabetically: <b>goat</b> or <b>girl</b>?", options: [{h:"girl",ok:true,explain:"Second letter: i comes before o."},{h:"goat",hint:"Compare the second letter: i comes before o."}] },
+        { prompt: "Which word comes first alphabetically: <b>hand</b> or <b>hill</b>?", options: [{h:"hand",ok:true,explain:"Second letter: a comes before i."},{h:"hill",hint:"Compare the second letter: a comes before i."}] },
+        { prompt: "Which word comes first alphabetically: <b>note</b> or <b>nice</b>?", options: [{h:"nice",ok:true,explain:"Second letter: i comes before o."},{h:"note",hint:"Compare the second letter: i comes before o."}] },
+        { prompt: "Which word comes first alphabetically: <b>wolf</b> or <b>wave</b>?", options: [{h:"wave",ok:true,explain:"Second letter: a comes before o."},{h:"wolf",hint:"Compare the second letter: a comes before o."}] },
+        { prompt: "Which word comes first alphabetically: <b>sand</b> or <b>silk</b>?", options: [{h:"sand",ok:true,explain:"Second letter: a comes before i."},{h:"silk",hint:"Compare the second letter: a comes before i."}] },
+        { prompt: "Which word comes first alphabetically: <b>cape</b> or <b>cost</b>?", options: [{h:"cape",ok:true,explain:"Second letter: a comes before o."},{h:"cost",hint:"Compare the second letter: a comes before o."}] },
+        { prompt: "Which word comes first alphabetically: <b>map</b> or <b>mud</b>?", options: [{h:"map",ok:true,explain:"Second letter: a comes before u."},{h:"mud",hint:"Compare the second letter: a comes before u."}] }
+      ],
+      multiletter: [
+        { prompt: "Which word comes first alphabetically: <b>climb</b> or <b>cloud</b>?", options: [{h:"climb",ok:true,explain:"c-l matches on both — third letter: i comes before o."},{h:"cloud",hint:"c-l matches on both — compare the third letter: i comes before o."}] },
+        { prompt: "Which word comes first alphabetically: <b>bread</b> or <b>brake</b>?", options: [{h:"bread",ok:true,explain:"b-r-a matches on both — fourth letter: e comes before k."},{h:"brake",hint:"b-r-a matches on both — compare the fourth letter: e comes before k."}] },
+        { prompt: "Which word comes first alphabetically: <b>trail</b> or <b>train</b>?", options: [{h:"trail",ok:true,explain:"tra matches on both — fourth letter: i comes before n."},{h:"train",hint:"tra matches on both — compare the fourth letter: i comes before n."}] },
+        { prompt: "Which word comes first alphabetically: <b>stone</b> or <b>storm</b>?", options: [{h:"stone",ok:true,explain:"sto matches on both — fourth letter: n comes before r."},{h:"storm",hint:"sto matches on both — compare the fourth letter: n comes before r."}] },
+        { prompt: "Which word comes first alphabetically: <b>charm</b> or <b>chart</b>?", options: [{h:"charm",ok:true,explain:"char matches on both — fifth letter: m comes before t."},{h:"chart",hint:"char matches on both — compare the fifth letter: m comes before t."}] },
+        { prompt: "Which word comes first alphabetically: <b>plane</b> or <b>plant</b>?", options: [{h:"plane",ok:true,explain:"plan matches on both — fifth letter: e comes before t."},{h:"plant",hint:"plan matches on both — compare the fifth letter: e comes before t."}] },
+        { prompt: "Which word comes first alphabetically: <b>spare</b> or <b>spark</b>?", options: [{h:"spare",ok:true,explain:"spar matches on both — fifth letter: e comes before k."},{h:"spark",hint:"spar matches on both — compare the fifth letter: e comes before k."}] },
+        { prompt: "Which word comes first alphabetically: <b>crumb</b> or <b>crust</b>?", options: [{h:"crumb",ok:true,explain:"cru matches on both — fourth letter: m comes before s."},{h:"crust",hint:"cru matches on both — compare the fourth letter: m comes before s."}] },
+        { prompt: "Which word comes first alphabetically: <b>float</b> or <b>flock</b>?", options: [{h:"float",ok:true,explain:"flo matches on both — fourth letter: a comes before c."},{h:"flock",hint:"flo matches on both — compare the fourth letter: a comes before c."}] },
+        { prompt: "Which word comes first alphabetically: <b>grand</b> or <b>grape</b>?", options: [{h:"grand",ok:true,explain:"gra matches on both — fourth letter: n comes before p."},{h:"grape",hint:"gra matches on both — compare the fourth letter: n comes before p."}] }
+      ],
+      between_range: [
+        { prompt: "Guide words: <b>hat — hut</b>. Does <b>hop</b> belong on this page?", options: [{h:"Yes",ok:true,explain:"'hop' falls after 'hat' and before 'hut'."},{h:"No",hint:"h-o falls after 'hat' and before 'hut' — check both letters."}] },
+        { prompt: "Guide words: <b>lamp — lock</b>. Does <b>list</b> belong on this page?", options: [{h:"Yes",ok:true,explain:"'list' falls after 'lamp' and before 'lock'."},{h:"No",hint:"l-i falls after 'lamp' and before 'lock' — it belongs."}] },
+        { prompt: "Guide words: <b>pet — pin</b>. Does <b>pit</b> belong on this page?", options: [{h:"No",ok:true,explain:"'pit' comes after 'pin' — outside the range on the high side."},{h:"Yes",hint:"'pit' comes after 'pin' — outside the range on the high side."}] },
+        { prompt: "Guide words: <b>bake — bump</b>. Does <b>ball</b> belong on this page?", options: [{h:"Yes",ok:true,explain:"'ball' falls after 'bake' and before 'bump'."},{h:"No",hint:"b-a-l falls after 'bake' and before 'bump' — check both letters."}] },
+        { prompt: "Guide words: <b>fork — frog</b>. Does <b>form</b> belong on this page?", options: [{h:"Yes",ok:true,explain:"'form' falls after 'fork' and before 'frog'."},{h:"No",hint:"'form' falls after 'fork' (4th letter m vs k) and before 'frog' — it belongs."}] },
+        { prompt: "Guide words: <b>nest — numb</b>. Does <b>net</b> belong on this page?", options: [{h:"Yes",ok:true,explain:"'net' falls after 'nest' and before 'numb'."},{h:"No",hint:"'net' falls after 'nest' and before 'numb' — check both letters."}] },
+        { prompt: "Guide words: <b>vine — vote</b>. Does <b>visa</b> belong on this page?", options: [{h:"Yes",ok:true,explain:"'visa' falls after 'vine' and before 'vote'."},{h:"No",hint:"'visa' falls after 'vine' and before 'vote' — check both letters."}] },
+        { prompt: "Guide words: <b>dime — dust</b>. Does <b>deck</b> belong on this page?", options: [{h:"No",ok:true,explain:"'deck' comes before 'dime' — outside the range on the low side."},{h:"Yes",hint:"'deck' comes before 'dime' — outside the range on the low side."}] },
+        { prompt: "Guide words: <b>reef — rust</b>. Does <b>ruby</b> belong on this page?", options: [{h:"Yes",ok:true,explain:"'ruby' falls after 'reef' and before 'rust'."},{h:"No",hint:"'ruby' falls after 'reef' and before 'rust' — check both letters."}] },
+        { prompt: "Guide words: <b>cabin — coast</b>. Does <b>crown</b> belong on this page?", options: [{h:"No",ok:true,explain:"'crown' comes after 'coast' — outside the range on the high side."},{h:"Yes",hint:"'crown' comes after 'coast' — outside the range on the high side."}] }
+      ],
+      guide_words_full: [
+        { prompt: "Guide words: <b>cat — cow</b>. Which word belongs on this page?", options: [{h:"cloud",ok:true,explain:"Falls after 'cat' and before 'cow'."},{h:"candle",hint:"'candle' comes before 'cat' — outside the range."},{h:"crown",hint:"'crown' comes after 'cow' — outside the range."},{h:"cabin",hint:"'cabin' comes before 'cat' — outside the range."}] },
+        { prompt: "Guide words: <b>march — mist</b>. Which word belongs on this page?", options: [{h:"melon",ok:true,explain:"Falls after 'march' and before 'mist'."},{h:"maple",hint:"'maple' comes before 'march' — outside the range."},{h:"moth",hint:"'moth' comes after 'mist' — outside the range."},{h:"mango",hint:"'mango' comes before 'march' — outside the range."}] },
+        { prompt: "Guide words: <b>desk — dust</b>. Which word belongs on this page?", options: [{h:"drum",ok:true,explain:"Falls after 'desk' and before 'dust'."},{h:"deer",hint:"'deer' comes before 'desk' — outside the range."},{h:"dye",hint:"'dye' comes after 'dust' — outside the range."},{h:"cart",hint:"'cart' doesn't even start with 'd' — wrong page."}] },
+        { prompt: "Guide words: <b>bell — book</b>. Which word belongs on this page?", options: [{h:"blue",ok:true,explain:"Falls after 'bell' and before 'book'."},{h:"bank",hint:"'bank' comes before 'bell' — outside the range."},{h:"boot",hint:"'boot' comes after 'book' — outside the range."},{h:"cake",hint:"'cake' doesn't even start with 'b' — wrong page."}] },
+        { prompt: "Guide words: <b>gate — gold</b>. Which word belongs on this page?", options: [{h:"girl",ok:true,explain:"Falls after 'gate' and before 'gold'."},{h:"game",hint:"'game' comes before 'gate' — outside the range."},{h:"gum",hint:"'gum' comes after 'gold' — outside the range."},{h:"hall",hint:"'hall' doesn't even start with 'g' — wrong page."}] },
+        { prompt: "Guide words: <b>lace — lend</b>. Which word belongs on this page?", options: [{h:"lamp",ok:true,explain:"Falls after 'lace' and before 'lend'."},{h:"lab",hint:"'lab' comes before 'lace' — outside the range."},{h:"lion",hint:"'lion' comes after 'lend' — outside the range."},{h:"kite",hint:"'kite' doesn't even start with 'l' — wrong page."}] },
+        { prompt: "Guide words: <b>mint — most</b>. Which word belongs on this page?", options: [{h:"mist",ok:true,explain:"Falls after 'mint' and before 'most'."},{h:"mile",hint:"'mile' comes before 'mint' — outside the range."},{h:"mud",hint:"'mud' comes after 'most' — outside the range."},{h:"nice",hint:"'nice' doesn't even start with 'm' — wrong page."}] },
+        { prompt: "Guide words: <b>ripe — rust</b>. Which word belongs on this page?", options: [{h:"roar",ok:true,explain:"Falls after 'ripe' and before 'rust'."},{h:"rice",hint:"'rice' comes before 'ripe' — outside the range."},{h:"rye",hint:"'rye' comes after 'rust' — outside the range."},{h:"sand",hint:"'sand' doesn't even start with 'r' — wrong page."}] },
+        { prompt: "Guide words: <b>vast — vote</b>. Which word belongs on this page?", options: [{h:"verb",ok:true,explain:"Falls after 'vast' and before 'vote'."},{h:"vain",hint:"'vain' comes before 'vast' — outside the range."},{h:"vow",hint:"'vow' comes after 'vote' — outside the range."},{h:"wolf",hint:"'wolf' doesn't even start with 'v' — wrong page."}] },
+        { prompt: "Guide words: <b>wine — wrap</b>. Which word belongs on this page?", options: [{h:"wish",ok:true,explain:"Falls after 'wine' and before 'wrap'."},{h:"wild",hint:"'wild' comes before 'wine' — outside the range."},{h:"writ",hint:"'writ' comes after 'wrap' — outside the range."},{h:"yard",hint:"'yard' doesn't even start with 'w' — wrong page."}] }
       ]
     }
   }
 };
 
 /* ---------------------------------------------------------------- */
-/* Active-scenario state (reassigned by selectScenario)               */
+/* Sequencing — no skill picker; runs in a fixed order automatically */
 /* ---------------------------------------------------------------- */
 
+const SKILL_ORDER = ["verbTense", "guideWords"];
+let skillIdx = 0;
 let active = null;
 let path = [];
 let trace = [];
+let LS = null;
 
 const stage = document.getElementById("stage");
 
-/* Select-then-submit: clicking an option only highlights it (in case of a
-   misclick); the student can change their pick until they press Submit. */
 function wireOptions(container, onSubmit){
   let selected = null;
   const opts = container.querySelectorAll(".opt");
@@ -437,41 +501,32 @@ function wireOptions(container, onSubmit){
   };
 }
 
-function selectScenario(key){
-  active = SCENARIOS[key];
-  path = []; trace = [];
-  renderIntro();
-}
-
-function renderSkillSelect(){
+function renderOnboarding(){
   stage.innerHTML = `
-    <div class="skill-chip">Choose a skill to diagnose</div>
-    <div class="prompt" style="font-size:16px">From his Language deep dive: mastery-blocked at Grade 5 despite Language being his stronger subject overall. Two specific skills are stuck, not the whole subject.</div>
-    <div class="skillcards">
-      <button class="skillcard" id="pick-verbTense">
-        <div class="num">22.9% accuracy</div>
-        <h3>Perfect verb tense</h3>
-        <p>Flat for 5 months across a 6-skill verb-tense cluster, despite heavy practice.</p>
-      </button>
-      <button class="skillcard" id="pick-guideWords">
-        <div class="num">26.3% accuracy</div>
-        <h3>Guide words</h3>
-        <p>35 attempts, 175 questions — accuracy got worse as practice ramped up in February.</p>
-      </button>
+    <div class="onboard">
+      <h2>Before we start</h2>
+      <div class="onboard-step">
+        <span class="num">1</span>
+        <p><b>Diagnostic.</b> A few quick questions to find exactly what's tripping you up.</p>
+      </div>
+      <div class="onboard-step">
+        <span class="num">2</span>
+        <p><b>Practice.</b> A short lesson built around what we find, with an explanation for every question.</p>
+      </div>
+      <div class="context" style="margin-top:14px">
+        <b>3. If it's still not clicking after practice</b>
+        you'll need to book a coaching call. <b>This part is mandatory, not optional.</b>
+      </div>
+      <button class="btn" id="beginBtn" style="margin-top:8px">Let's start</button>
     </div>`;
-  document.getElementById("pick-verbTense").onclick = () => selectScenario("verbTense");
-  document.getElementById("pick-guideWords").onclick = () => selectScenario("guideWords");
+  document.getElementById("beginBtn").onclick = startNextSkill;
 }
 
-function renderIntro(){
-  stage.innerHTML = `
-    <div class="context">${active.contextHTML}</div>
-    <div class="skill-chip">Diagnostic ready</div>
-    <div class="prompt">3 quick questions or fewer. Answers route the next probe automatically.</div>
-    <button class="btn" id="start">Start diagnostic</button>
-    <div style="margin-top:12px"><button class="btn ghost" id="switchSkill">Choose a different skill</button></div>`;
-  document.getElementById("start").onclick = () => renderQ("p1");
-  document.getElementById("switchSkill").onclick = renderSkillSelect;
+function startNextSkill(){
+  if(skillIdx >= SKILL_ORDER.length){ renderAllDone(); return; }
+  active = SCENARIOS[SKILL_ORDER[skillIdx]];
+  path = []; trace = [];
+  renderQ("p1");
 }
 
 function renderSteps(current){
@@ -487,8 +542,7 @@ function renderQ(id){
     <div class="skill-chip">${q.skill}</div>
     <div class="prompt">${q.prompt}</div>
     ${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`).join("")}
-    <div class="submit-row"><button class="btn" disabled>Submit</button></div>
-    <div class="seed-chip">${q.seed}</div>`;
+    <div class="submit-row"><button class="btn" disabled>Submit</button></div>`;
   wireOptions(stage, (i) => {
     const o = q.options[i];
     path.push(id);
@@ -520,36 +574,23 @@ function renderDiag(id){
         }).join("")}
       </div>
       <div class="lesson">
-        <h3>Generated lesson outline</h3>
-        ${d.lesson ? `<ol>${d.lesson.map(l=>`<li>${l}</li>`).join("")}</ol>` : `<div class="none">None — the miss is logged for pattern tracking, and the student moves on.</div>`}
+        <h3>Lesson outline</h3>
+        ${d.lesson ? `<ol>${d.lesson.map(l=>`<li>${l}</li>`).join("")}</ol>` : `<div class="none">None needed — the miss is logged, and we move on.</div>`}
       </div>
-      <div style="margin-top:22px; display:flex; gap:10px; flex-wrap:wrap;">
-        ${d.lesson ? `<button class="btn" id="genlesson">Generate lesson →</button>` : ``}
-        <button class="btn ghost" id="again">Run again</button>
-        <button class="btn ghost" id="switchSkill2">Choose a different skill</button>
+      <div style="margin-top:22px;">
+        <button class="btn" id="proceedBtn">${d.lesson ? "Continue to practice →" : "Continue →"}</button>
       </div>
     </div>`;
-  document.getElementById("again").onclick = () => { path=[]; trace=[]; renderIntro(); };
-  document.getElementById("switchSkill2").onclick = renderSkillSelect;
-  const gl = document.getElementById("genlesson");
-  if(gl) gl.onclick = () => startLesson(id);
+  document.getElementById("proceedBtn").onclick = () => {
+    if(d.lesson){ startLesson(id); }
+    else { skillIdx++; startNextSkill(); }
+  };
 }
 
 /* ---------- Lesson generation + player ---------- */
 
-const NEED = 3;
-const MINIPROBE = {
-  options: [
-    { h:"I follow the example, but the practice questions look different", outcome:"regen" },
-    { h:"A smaller step underneath this one is shaky", outcome:"insert" },
-    { h:"Honestly, I'm lost and just guessing", outcome:"escalate" }
-  ]
-};
-
-let LS = null;
-
 function mkSection(topic){
-  return { topic, title: active.TOPIC_TITLE[topic], correct:0, wrong:0, q:0, mastered:false, regenerated:false, alt:false, inserted:false };
+  return { topic, title: active.TOPIC_TITLE[topic], q:0, correct:0, wrong:0, mastered:false, regenerated:false, alt:false, inserted:false };
 }
 
 function startLesson(diagId){
@@ -560,8 +601,8 @@ function startLesson(diagId){
     sections: d.plan.map(mkSection),
     idx: 0, inProbe:false
   };
-  renderGenerating("Generating lesson from the diagnosis…",
-    `Building ${LS.sections.length} gated sections, seeded with a real (anonymized) student's coaching examples`, renderLesson);
+  renderGenerating("Generating your lesson…",
+    `Building ${LS.sections.length} section${LS.sections.length>1?"s":""}, ${QUESTIONS_PER_TOPIC} practice questions each`, renderLesson);
 }
 
 function renderGenerating(title, cap, cb){
@@ -581,19 +622,19 @@ function renderLesson(){
   const s = LS.sections[LS.idx];
   const th = active.THEORY[s.topic];
   let banner = "";
-  if(s.regenerated) banner = `<div class="banner regen">Regenerated with a different approach — a visual/timeline model this time.</div>`;
-  else if(s.inserted) banner = `<div class="banner insert">Plan adjusted — inserted prerequisite: ${s.title}. The ladder grew a rung.</div>`;
-  const confront = (LS.idx===0 && LS.mis)
+  if(s.regenerated) banner = `<div class="banner regen">Regenerated with a different approach — a different explanation this time.</div>`;
+  else if(s.inserted) banner = `<div class="banner insert">Plan adjusted — inserted prerequisite: ${s.title}.</div>`;
+  const confront = (LS.idx===0 && LS.mis && s.q===0 && !s.regenerated)
     ? `<div class="theory" style="font-weight:600">${LS.firstWrong?`You answered "${LS.firstWrong}" — `:""}${LS.mis}</div>` : "";
   stage.innerHTML = `
     ${railHTML()}
     ${banner}
-    <div class="skill-chip">Section ${LS.idx+1} of ${LS.sections.length} · gate: ${NEED} correct to unlock the next</div>
     <h2 style="font-size:19px;font-weight:700;margin:4px 0 12px">${s.title}</h2>
     ${confront}
     <div class="theory">${s.alt?th.alt:th.main}</div>
-    <div class="example"><b>Worked example.</b> ${th.example}</div>
-    <div class="meter">Section accuracy: <b>${s.correct}</b> correct · ${s.wrong} missed · need <span class="pass">${NEED}</span> to master</div>
+    <div class="steps-box"><b>Steps</b><ol>${th.steps.map(x=>`<li>${x}</li>`).join("")}</ol></div>
+    <div class="example"><b>Worked examples</b><ul>${th.examples.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+    <div class="meter">Question <b>${s.q+1}</b> of ${QUESTIONS_PER_TOPIC} · <b>${s.correct}</b> correct so far</div>
     <div id="qarea"></div>`;
   renderQuestion();
 }
@@ -604,37 +645,46 @@ function renderQuestion(){
   const q = bank[s.q % bank.length];
   const qa = document.getElementById("qarea");
   qa.innerHTML = `
+    <div class="qcount">Question ${s.q+1} of ${QUESTIONS_PER_TOPIC}</div>
     <div class="prompt" style="font-size:16px">${q.prompt}</div>
     ${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`).join("")}
     <div class="submit-row"><button class="btn" disabled>Submit</button></div>`;
-  wireOptions(qa, (i) => answer(q.options[i]));
+  wireOptions(qa, (i) => submitAnswer(q, i));
 }
 
-function updateMeter(){
+function submitAnswer(q, i){
   const s = LS.sections[LS.idx];
-  const m = stage.querySelector(".meter");
-  if(m) m.innerHTML = `Section accuracy: <b>${s.correct}</b> correct · ${s.wrong} missed · need <span class="pass">${NEED}</span> to master`;
-}
+  const opt = q.options[i];
+  if(opt.ok) s.correct++; else s.wrong++;
 
-function answer(opt){
-  const s = LS.sections[LS.idx];
-  s.q++;
   const qa = document.getElementById("qarea");
-  if(opt.ok){
-    s.correct++; updateMeter();
-    if(s.correct>=NEED){ qa.innerHTML=`<div class="feedback good">Correct — that clears the gate.</div>`; setTimeout(masterSection, 850); return; }
-    qa.innerHTML=`<div class="feedback good">Correct — keep going.</div>`;
-    setTimeout(renderQuestion, 800);
+  qa.innerHTML = `
+    <div class="qcount">Question ${s.q+1} of ${QUESTIONS_PER_TOPIC}</div>
+    <div class="prompt" style="font-size:16px">${q.prompt}</div>
+    ${q.options.map((o,idx)=>{
+      let cls = "opt";
+      if(idx===i) cls += opt.ok ? " chosen-correct" : " chosen-wrong";
+      else if(o.ok && !opt.ok) cls += " reveal-correct";
+      return `<button class="${cls}" disabled><span class="key">${"ABCD"[idx]}</span><span>${o.h}</span></button>`;
+    }).join("")}
+    <div class="feedback ${opt.ok?'good':'hint'}">${opt.ok ? (opt.explain || "Correct!") : (opt.hint || "Not quite.")}</div>
+    <div class="submit-row"><button class="btn" id="nextBtn">Next →</button></div>`;
+  document.getElementById("nextBtn").onclick = () => advanceQuestion(s);
+}
+
+function updateMeter(s){
+  const m = stage.querySelector(".meter");
+  if(m) m.innerHTML = `Question <b>${Math.min(s.q+1,QUESTIONS_PER_TOPIC)}</b> of ${QUESTIONS_PER_TOPIC} · <b>${s.correct}</b> correct so far`;
+}
+
+function advanceQuestion(s){
+  s.q++;
+  updateMeter(s);
+  if(s.q >= QUESTIONS_PER_TOPIC){
+    if(s.correct >= PASS_THRESHOLD){ masterSection(); }
+    else { renderMiniProbe(); }
   } else {
-    s.wrong++; updateMeter();
-    if(s.wrong>=2 && !LS.inProbe){
-      LS.inProbe = true;
-      qa.innerHTML=`<div class="feedback hint">Accuracy dipped — let's check something before continuing.</div>`;
-      setTimeout(renderMiniProbe, 900);
-      return;
-    }
-    qa.innerHTML=`<div class="feedback hint">${opt.hint||"Not quite — try the next one."}</div>`;
-    setTimeout(renderQuestion, 850);
+    renderQuestion();
   }
 }
 
@@ -652,29 +702,33 @@ function renderMiniProbe(){
   const s = LS.sections[LS.idx];
   stage.innerHTML = `
     ${railHTML()}
-    <div class="banner insert">Mid-lesson mini-probe — one question to decide what to fix.</div>
+    <div class="banner insert">Accuracy on this section is low — one question to decide what to fix.</div>
     <div class="skill-chip">Re-diagnosing inside "${s.title}"</div>
     <div class="prompt" style="font-size:16px">Which feels closest to what's tripping you up on <b>${s.title.toLowerCase()}</b>?</div>
-    ${MINIPROBE.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABC"[i]}</span><span>${o.h}</span></button>`).join("")}
+    ${[
+      "I follow the example, but the practice questions look different",
+      "A smaller step underneath this one is shaky",
+      "Honestly, I'm lost and just guessing"
+    ].map((h,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABC"[i]}</span><span>${h}</span></button>`).join("")}
     <div class="submit-row"><button class="btn" disabled>Submit</button></div>`;
-  wireOptions(stage, (i) => miniOutcome(MINIPROBE.options[i]));
+  const outcomes = ["regen","insert","escalate"];
+  wireOptions(stage, (i) => miniOutcome(outcomes[i]));
 }
 
-function miniOutcome(opt){
-  LS.inProbe = false;
+function miniOutcome(outcome){
   const s = LS.sections[LS.idx];
-  if(opt.outcome==="regen"){
+  if(outcome==="regen"){
     if(s.regenerated){ renderEscalate("Regenerated once already and accuracy is still below the gate."); return; }
     s.regenerated=true; s.alt=true; s.correct=0; s.wrong=0; s.q=0;
-    renderGenerating("Regenerating this section…", "Same skill, different representation — a timeline/visual model", renderLesson);
-  } else if(opt.outcome==="insert"){
+    renderGenerating("Regenerating this section…", "Same skill, a different explanation this time", renderLesson);
+  } else if(outcome==="insert"){
     const pre = active.PREREQ[s.topic];
     if(!pre){ renderEscalate("No prerequisite left below this — it's the drill floor."); return; }
     const nu = mkSection(pre); nu.inserted=true;
     LS.sections.splice(LS.idx, 0, nu);
     renderGenerating("Adjusting the plan…", `Inserting prerequisite: ${nu.title}`, renderLesson);
   } else {
-    renderEscalate("Student selected 'lost and guessing'.");
+    renderEscalate("Still not clicking after practice.");
   }
 }
 
@@ -682,46 +736,44 @@ function renderLessonDone(){
   stage.innerHTML = `
     ${railHTML()}
     <div class="diag">
-      <span class="diag-cause ok">Lesson complete</span>
-      <h2>Back above the gate — concept rebuilt</h2>
-      <p>All ${LS.sections.length} sections mastered, ending with the re-climb to the original test skill. The final section cleared the ${NEED}-correct gate.</p>
-      <div class="lesson">
-        <h3>What gets reported</h3>
-        <ol>
-          <li>A mastery event per section → TimeBack, so the campus DRI sees the work instead of idle time</li>
-          <li>The confirmed-fixed skill feeds back into the student's diagnostic history</li>
-          <li>His next Grade-5 mastery attempt re-checks this skill to confirm it stuck</li>
-        </ol>
-      </div>
-      <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn" id="relesson">Replay lesson</button>
-        <button class="btn ghost" id="again2">Back to diagnostic</button>
-        <button class="btn ghost" id="switchSkill3">Choose a different skill</button>
+      <span class="diag-cause ok">Section complete</span>
+      <h2>Nice work — that's mastered</h2>
+      <p>All ${LS.sections.length} section${LS.sections.length>1?"s":""} passed, ending with the re-climb to the original skill.</p>
+      <div style="margin-top:22px;">
+        <button class="btn" id="continueBtn">Continue →</button>
       </div>
     </div>`;
-  document.getElementById("relesson").onclick = () => startLesson(LS.diagId);
-  document.getElementById("again2").onclick = () => { path=[]; trace=[]; renderIntro(); };
-  document.getElementById("switchSkill3").onclick = renderSkillSelect;
+  document.getElementById("continueBtn").onclick = () => { skillIdx++; startNextSkill(); };
 }
 
 function renderEscalate(reason){
   stage.innerHTML = `
     ${railHTML()}
     <div class="coach-card">
-      <span class="diag-cause warn">Campus DRI notified</span>
-      <h2>Generation reached its limit</h2>
-      <p style="font-size:14px;color:var(--sub);margin-bottom:6px">${reason} Per the escalation cap, the loop stops regenerating and sends a notification to the campus DRI instead of trying again.</p>
-      <p style="font-size:13px;color:var(--mut)">The notification includes the full trace: original miss, diagnosis, sections attempted, and where accuracy stalled.</p>
-      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn ghost" id="again3">Back to diagnostic</button>
-        <button class="btn ghost" id="switchSkill4">Choose a different skill</button>
+      <span class="diag-cause bad">Mandatory coaching call</span>
+      <h2>Time to book a coaching call</h2>
+      <p style="font-size:14px;color:var(--sub);margin-bottom:6px">${reason} As explained at the start: when practice alone isn't enough, the next step is a coaching call — <b>required, not optional.</b></p>
+      <p style="font-size:13px;color:var(--mut);margin-bottom:4px">Available times this week:</p>
+      <div class="slots">
+        <div class="slot">Tue · 3:30 PM</div>
+        <div class="slot">Tue · 4:15 PM</div>
+        <div class="slot">Wed · 3:00 PM</div>
+        <div class="slot">Thu · 3:45 PM</div>
       </div>
+      <p style="font-size:12px;color:var(--mut)">Your campus DRI is notified automatically, with the full record of what was tried.</p>
     </div>`;
-  document.getElementById("again3").onclick = () => { path=[]; trace=[]; renderIntro(); };
-  document.getElementById("switchSkill4").onclick = renderSkillSelect;
 }
 
-renderSkillSelect();
+function renderAllDone(){
+  stage.innerHTML = `
+    <div class="diag">
+      <span class="diag-cause ok">All caught up</span>
+      <h2>You're done for today</h2>
+      <p>Both flagged skills are back above the mastery bar. Nice work.</p>
+    </div>`;
+}
+
+renderOnboarding();
 </script>
 </body>
 </html>
