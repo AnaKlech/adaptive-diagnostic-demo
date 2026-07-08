@@ -513,11 +513,11 @@ function renderOnboarding(){
         <span class="num">2</span>
         <p><b>Practice.</b> A short lesson built around what we find, with an explanation for every question.</p>
       </div>
-      <div class="context" style="margin-top:14px">
-        <b>3. If it's still not clicking after practice</b>
-        you'll need to book a coaching call. <b>This part is mandatory, not optional.</b>
+      <div class="onboard-step">
+        <span class="num">3</span>
+        <p><b>Coaching call.</b> If it's still not clicking after practice, we'll set one up together — that part's mandatory, not optional.</p>
       </div>
-      <button class="btn" id="beginBtn" style="margin-top:8px">Let's start</button>
+      <button class="btn" id="beginBtn" style="margin-top:16px">Let's start</button>
     </div>`;
   document.getElementById("beginBtn").onclick = startNextSkill;
 }
@@ -639,10 +639,20 @@ function renderLesson(){
   renderQuestion();
 }
 
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function renderQuestion(){
   const s = LS.sections[LS.idx];
   const bank = active.QUESTION_BANK[s.topic];
-  const q = bank[s.q % bank.length];
+  const raw = bank[s.q % bank.length];
+  const q = { prompt: raw.prompt, options: shuffle(raw.options) };
   const qa = document.getElementById("qarea");
   qa.innerHTML = `
     <div class="qcount">Question ${s.q+1} of ${QUESTIONS_PER_TOPIC}</div>
