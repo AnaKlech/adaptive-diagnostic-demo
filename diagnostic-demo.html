@@ -37,6 +37,7 @@
   .skill-row.current{border-color:var(--accent); background:var(--accent-soft);}
   .skill-row.locked{opacity:.5;}
   .skill-row .skill-name{font-size:15px; font-weight:700;}
+  .skill-row .skill-blurb{margin-top:4px; font-size:13px; color:var(--sub);}
   .skill-row .done-label{margin-top:6px; font-size:13px; font-weight:600; color:var(--ok);}
   .skill-row .skill-start-btn{margin-top:12px;}
 
@@ -154,6 +155,7 @@ const SCENARIOS = {
 
   verbTense: {
     label: "Perfect verb tense",
+    blurb: "Showing one past action happened before another, using had/has/have with the right participle.",
     topFullTopic: "verb_tense_full",
     TOPIC_TITLE: {
       timeline: "Placing events on a timeline",
@@ -164,8 +166,12 @@ const SCENARIOS = {
     PREREQ: { verb_tense_full: "combine", combine: "participles", participles: "timeline" },
     THEORY: {
       timeline: {
-        main: "Most sentences describe one thing happening. But sometimes a sentence needs to show that ONE past event happened BEFORE another past event — not just that both happened in the past, but which one came first. That's exactly the situation perfect tense is built for.",
-        alt: "Picture a line: Past — Present — Future. Now imagine a second, earlier point on the past side — that's the 'past before the past' moment perfect tense marks.",
+        approaches: [
+          "Most sentences describe one thing happening. But sometimes a sentence needs to show that ONE past event happened BEFORE another past event — not just that both happened in the past, but which one came first. That's exactly the situation perfect tense is built for.",
+          "Picture a line: Past — Present — Future. Now imagine a second, earlier point on the past side — that's the 'past before the past' moment perfect tense marks.",
+          "Look for a signal phrase — words like 'by the time,' 'already,' or 'before X happened' are the sentence telling you there are two past moments, not one. Whichever action the signal phrase points to as the EARLIER one needs 'had' plus the past participle.",
+          "Think about how you'd tell a friend a story out of order — 'oh wait, I forgot to say, this had already happened.' That backtracking word 'had' is exactly what marks the earlier event when you're describing two things that happened in the past."
+        ],
         steps: ["Look for two events in the sentence, both in the past.", "Figure out which one happened first.", "The earlier event gets 'had' + the past participle to mark it as happening before the other one."],
         examples: [
           "'I had already eaten dinner when she arrived' — eating dinner happened first, then arriving happened. 'Had eaten' marks the earlier event.",
@@ -173,8 +179,12 @@ const SCENARIOS = {
         ]
       },
       participles: {
-        main: "Perfect tense always pairs a helper word (has, have, or had) with a special form of the verb called the past participle. Regular verbs just add -ed (walk → walked), but a lot of common verbs are irregular — their past participle doesn't follow that pattern, and guessing '-ed' gets it wrong.",
-        alt: "Think of each irregular verb as having its own partner word for has/have/had — write's partner is written, go's partner is gone, not the -ed you'd expect.",
+        approaches: [
+          "Perfect tense always pairs a helper word (has, have, or had) with a special form of the verb called the past participle. Regular verbs just add -ed (walk → walked), but a lot of common verbs are irregular — their past participle doesn't follow that pattern, and guessing '-ed' gets it wrong.",
+          "Think of each irregular verb as having its own partner word for has/have/had — write's partner is written, go's partner is gone, not the -ed you'd expect.",
+          "Irregular verbs aren't random — many follow small families with the same vowel shift. 'Speak → spoke → spoken' and 'break → broke → broken' share the same pattern; 'grow → grew → grown' and 'know → knew → known' share another. Learning one verb in a family helps you guess the others.",
+          "Every verb has three key forms: the plain form (go), the simple past (went), and the past participle (gone) — and for irregular verbs, all three can look completely different. Perfect tense always needs that third form, the past participle, never the simple past."
+        ],
         steps: ["Check if the verb is regular (just add -ed) or irregular.", "For irregular verbs, the participle has to be learned — it doesn't follow a rule.", "Never regularize an irregular verb by adding -ed to it."],
         examples: [
           "'go' → 'gone' (has gone), not 'goed'.",
@@ -182,8 +192,12 @@ const SCENARIOS = {
         ]
       },
       combine: {
-        main: "Perfect tense is always: has/have/had + past participle. Which helper word you use depends on timing — has or have for something that happened in the past but still matters now (present perfect), and had for something that happened before another past event (past perfect).",
-        alt: "It's a two-piece puzzle: pick the right helper word for when it happened, then attach the correct participle for the verb.",
+        approaches: [
+          "Perfect tense is always: has/have/had + past participle. Which helper word you use depends on timing — has or have for something that happened in the past but still matters now (present perfect), and had for something that happened before another past event (past perfect).",
+          "It's a two-piece puzzle: pick the right helper word for when it happened, then attach the correct participle for the verb.",
+          "Ask yourself: does this matter right now, in the present? If yes — 'She has finished, so she's free tonight' — use has/have. Does it only matter compared to another moment in the past? If yes — 'She had finished before dinner' — use had. The helper word answers 'relevant to when?'",
+          "Run two quick questions: is there another past moment mentioned in the sentence to compare against (a 'before X' relationship)? If yes, that calls for had. If there's no second past moment and the sentence is just saying something is true up to now, that calls for has/have."
+        ],
         steps: ["Decide: is this 'still relevant now' (present perfect) or 'before another past event' (past perfect)?", "Pick has/have for present perfect, had for past perfect.", "Attach the correct past participle — never the plain past-tense form."],
         examples: [
           "'She has finished her homework' — present perfect: it's done, and that matters right now.",
@@ -191,8 +205,12 @@ const SCENARIOS = {
         ]
       },
       verb_tense_full: {
-        main: "Putting the whole thing together: first figure out the timing, then pick the right helper word, then attach the correct past participle for that verb — not the plain past tense, and not a regularized -ed guess.",
-        alt: "Same three-step puzzle, put together: when did it happen relative to now or another event, which helper word matches, which participle matches the verb.",
+        approaches: [
+          "Putting the whole thing together: first figure out the timing, then pick the right helper word, then attach the correct past participle for that verb — not the plain past tense, and not a regularized -ed guess.",
+          "Same three-step puzzle, put together: when did it happen relative to now or another event, which helper word matches, which participle matches the verb.",
+          "Take one sentence and walk it through fully: 'By the time the bell rang, the class had read the entire chapter.' First — is there a second past moment? Yes, the bell ringing. Second — did the reading happen before or after? Before. Third — so it needs 'had' plus the participle 'read.' Every perfect-tense sentence follows that same three-question walk.",
+          "The three things that trip people up: using the plain past tense when there's a 'before' relationship (should be had), regularizing an irregular verb by adding -ed, and using has/have when the sentence is really about something before another past moment. Checking for these three specifically catches most mistakes."
+        ],
         steps: ["Identify the timing signal — is there a 'before' relationship, or just an ongoing 'already' relevance?", "Choose had (past-before-past) or has/have (present relevance).", "Use the correct past participle for the verb."],
         examples: [
           "'By the time the bell rang, the class had read the entire chapter' — reading finished before the bell, so 'had' + 'read'.",
@@ -254,6 +272,7 @@ const SCENARIOS = {
 
   guideWords: {
     label: "Guide words",
+    blurb: "Finding which dictionary or glossary page a word belongs on, using the two guide words at the top.",
     topFullTopic: "guide_words_full",
     TOPIC_TITLE: {
       basic_order: "Alphabetical order, letter by letter",
@@ -264,8 +283,12 @@ const SCENARIOS = {
     PREREQ: { guide_words_full: "between_range", between_range: "multiletter", multiletter: "basic_order" },
     THEORY: {
       basic_order: {
-        main: "Alphabetical order works by comparing two words letter by letter, left to right, until you find a letter that's different. Whichever word has the earlier letter — the one closer to A — comes first. If the very first letters are the same, move on to the second letter, and so on.",
-        alt: "Think of the alphabet as a number line: A is 1, all the way to Z is 26. Compare each letter's 'number' until they differ.",
+        approaches: [
+          "Alphabetical order works by comparing two words letter by letter, left to right, until you find a letter that's different. Whichever word has the earlier letter — the one closer to A — comes first. If the very first letters are the same, move on to the second letter, and so on.",
+          "Think of the alphabet as a number line: A is 1, all the way to Z is 26. Compare each letter's 'number' until they differ.",
+          "Think about how a class roster or contact list is sorted — it's not by whole names, it's letter by letter, one at a time, starting from the very first letter. The moment two names' letters stop matching, that letter decides who's listed first.",
+          "Cross off letters as they match. bear vs. bird: cross off 'b' (matches), now compare 'e' vs 'i' — 'e' is closer to the start of the alphabet, so bear wins. Keep crossing off matching letters until one letter is left to compare."
+        ],
         steps: ["Line up the two words and compare their first letters.", "If the first letters match, move to the second letter — that's usually where it's decided.", "Whichever word has the earlier letter at the first point of difference comes first."],
         examples: [
           "bear vs. bird — both start with 'b', so compare the second letter: 'e' comes before 'i', so bear comes first.",
@@ -273,8 +296,12 @@ const SCENARIOS = {
         ]
       },
       multiletter: {
-        main: "Sometimes two words share more than just the first letter — they might match for two, three, or even four letters in a row. When that happens, keep comparing letter by letter until you finally reach one that's different. That letter — wherever it shows up — decides the order.",
-        alt: "Walk down both words together, one letter at a time, like climbing side-by-side ladders. The first rung where they differ tells you which word comes first.",
+        approaches: [
+          "Sometimes two words share more than just the first letter — they might match for two, three, or even four letters in a row. When that happens, keep comparing letter by letter until you finally reach one that's different. That letter — wherever it shows up — decides the order.",
+          "Walk down both words together, one letter at a time, like climbing side-by-side ladders. The first rung where they differ tells you which word comes first.",
+          "Imagine shining a spotlight down both words at the same time, letter by letter. The spotlight stays on 'match' until it lands on a letter that's different — that's the only letter that actually matters for deciding the order. Everything before it is a tie.",
+          "Count how many letters match before hitting a difference — climb vs. cloud match for 2 letters (c-l), then differ at letter 3 (i vs o). It doesn't matter how many letters matched first; only that first different letter decides the order."
+        ],
         steps: ["Compare letter by letter, left to right.", "Every time the letters match, move to the next position.", "Stop at the first letter that's different, and use that one to decide the order."],
         examples: [
           "climb vs. cloud — c-l match, then 'i' vs 'o': i comes first, so climb comes before cloud.",
@@ -282,8 +309,12 @@ const SCENARIOS = {
         ]
       },
       between_range: {
-        main: "The two words at the top of a dictionary or glossary page are called guide words. They show the very first and very last entries on that page. A word only belongs on that page if it comes AFTER the first guide word alphabetically AND BEFORE the second one — both have to be true, not just one.",
-        alt: "Picture the two guide words as fence posts. A word only belongs on the page if it falls inside the fence — checking just one side isn't enough.",
+        approaches: [
+          "The two words at the top of a dictionary or glossary page are called guide words. They show the very first and very last entries on that page. A word only belongs on that page if it comes AFTER the first guide word alphabetically AND BEFORE the second one — both have to be true, not just one.",
+          "Picture the two guide words as fence posts. A word only belongs on the page if it falls inside the fence — checking just one side isn't enough.",
+          "Picture the word running a race with a checkpoint at each guide word. It has to pass the first checkpoint (come after the first guide word) AND arrive before the second checkpoint (come before the second guide word). Missing either checkpoint means it's not on this page.",
+          "The mistake that causes most wrong answers here is checking only one guide word and stopping. A word can pass the first check and still fail the second — like 'crown' coming after 'cat' but ALSO after 'cow,' which fails the second check. Always check both sides before deciding."
+        ],
         steps: ["Compare your word to the FIRST guide word — does it come after it?", "Compare your word to the SECOND guide word — does it come before it?", "Only if both checks pass does the word belong on that page."],
         examples: [
           "Guide words cat–cow: 'crown' comes after 'cat' ✓, but it also comes after 'cow' — it fails the second check, so it does NOT belong.",
@@ -291,8 +322,12 @@ const SCENARIOS = {
         ]
       },
       guide_words_full: {
-        main: "Putting it all together: to find where a word belongs, compare it letter by letter against BOTH guide words. It has to land after the first one and before the second one. If it fails either check — even by one letter — it belongs on a different page.",
-        alt: "Same fence, same walk — putting both skills together: compare letter by letter, then check the word lands inside the fence on both sides.",
+        approaches: [
+          "Putting it all together: to find where a word belongs, compare it letter by letter against BOTH guide words. It has to land after the first one and before the second one. If it fails either check — even by one letter — it belongs on a different page.",
+          "Same fence, same walk — putting both skills together: compare letter by letter, then check the word lands inside the fence on both sides.",
+          "Walk through one example fully: guide words are 'march–mist,' checking 'melon.' First check: does 'melon' come after 'march'? m-e vs m-a — yes. Second check: does 'melon' come before 'mist'? m-e vs m-i — yes. Both checks pass, so 'melon' belongs on this page. Every word gets the same two-check treatment.",
+          "The two mistakes that show up most: stopping after the first check instead of doing both, and comparing whole words instead of going letter by letter when the words start the same. Doing both checks, letter by letter, catches almost every case."
+        ],
         steps: ["Compare letter by letter to the first guide word.", "Compare letter by letter to the second guide word.", "The word only belongs if it passes both comparisons."],
         examples: [
           "Guide words march–mist: 'melon' comes after march (m-e vs m-a) and before mist (m-e vs m-i) — it belongs.",
@@ -407,16 +442,19 @@ function renderOnboarding(){
           if(i < skillIdx){
             return `<div class="skill-row done">
               <div class="skill-name">${skill.label}</div>
+              <div class="skill-blurb">${skill.blurb}</div>
               <div class="done-label">✓ This is done</div>
             </div>`;
           } else if(i === skillIdx){
             return `<div class="skill-row current">
               <div class="skill-name">${skill.label}</div>
+              <div class="skill-blurb">${skill.blurb}</div>
               <button class="btn skill-start-btn">Let's start</button>
             </div>`;
           } else {
             return `<div class="skill-row locked">
               <div class="skill-name">${skill.label}</div>
+              <div class="skill-blurb">${skill.blurb}</div>
             </div>`;
           }
         }).join("")}
@@ -494,9 +532,11 @@ function renderFeedbackThanks(text){
 
 /* ---------- Lesson generation + player ---------- */
 
+const MAX_REGENS = 3;
+
 function mkSection(topic, size){
   return { topic, title: active.TOPIC_TITLE[topic], q:0, correct:0, wrong:0, needed: size || QUESTIONS_PER_TOPIC,
-    mastered:false, regenerated:false, alt:false, inserted:false };
+    mastered:false, regenCount:0, inserted:false };
 }
 
 function startLesson(size){
@@ -525,19 +565,21 @@ function renderLesson(){
   const s = LS.sections[LS.idx];
   const th = active.THEORY[s.topic];
   let banner = "";
-  if(s.regenerated) banner = `<div class="banner regen">Regenerated with a different approach — a different explanation this time.</div>`;
+  if(s.regenCount>0) banner = `<div class="banner regen">Regenerated with a different approach (attempt ${s.regenCount+1} of ${MAX_REGENS+1}) — a different explanation this time.</div>`;
   else if(s.inserted) banner = `<div class="banner insert">Plan adjusted — inserted prerequisite: ${s.title}.</div>`;
-  const confront = (LS.idx===0 && LS.firstWrong && s.q===0 && !s.regenerated)
+  const confront = (LS.idx===0 && LS.firstWrong && s.q===0 && s.regenCount===0)
     ? `<div class="theory" style="font-weight:600">You answered "${LS.firstWrong}" on the diagnostic — let's work through this properly.</div>` : "";
+  const explanation = th.approaches[Math.min(s.regenCount, th.approaches.length-1)];
+  const regenLabel = s.regenCount >= MAX_REGENS ? "Still don't understand? Book a coaching call" : "I don't understand, regenerate explanation";
   stage.innerHTML = `
     ${railHTML()}
     ${banner}
     <h2 style="font-size:19px;font-weight:700;margin:4px 0 12px">${s.title}</h2>
     ${confront}
-    <div class="theory">${s.alt?th.alt:th.main}</div>
+    <div class="theory">${explanation}</div>
     <div class="steps-box"><b>Steps</b><ol>${th.steps.map(x=>`<li>${x}</li>`).join("")}</ol></div>
     <div class="example"><b>Worked examples</b><ul>${th.examples.map(x=>`<li>${x}</li>`).join("")}</ul></div>
-    <button class="btn ghost" id="regenBtn" style="margin-bottom:18px">I don't understand, regenerate explanation</button>
+    <button class="btn ghost" id="regenBtn" style="margin-bottom:18px">${regenLabel}</button>
     <div class="meter">Question <b>${s.q+1}</b> of ${s.needed} · <b>${s.correct}</b> correct so far</div>
     <div id="qarea"></div>`;
   document.getElementById("regenBtn").onclick = () => regenerateSection(s);
@@ -545,9 +587,9 @@ function renderLesson(){
 }
 
 function regenerateSection(s){
-  if(s.regenerated){ renderEscalate("Already tried a different explanation and it's still not clicking."); return; }
-  s.regenerated = true; s.alt = true; s.correct = 0; s.wrong = 0; s.q = 0;
-  renderGenerating("Regenerating this section…", "Same skill, a different explanation this time", renderLesson);
+  if(s.regenCount >= MAX_REGENS){ renderEscalate(`Tried ${MAX_REGENS} different explanations for "${s.title}" and it's still not clicking.`); return; }
+  s.regenCount++; s.correct = 0; s.wrong = 0; s.q = 0;
+  renderGenerating("Regenerating this section…", "A different approach this time", renderLesson);
 }
 
 function shuffle(arr){
@@ -702,7 +744,6 @@ function renderEscalate(reason){
         <div class="slot">Wed · 3:00 PM</div>
         <div class="slot">Thu · 3:45 PM</div>
       </div>
-      <p style="font-size:12px;color:var(--mut)">Your campus DRI is notified automatically, with the full record of what was tried.</p>
     </div>`;
 }
 
