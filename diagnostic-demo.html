@@ -507,22 +507,34 @@ function finishDiagnostic(){
   startLesson(5);
 }
 
+const MAX_PREREQ_LEVELS = 3;
+
 function renderPrereqCheck(){
-  const prereqTopic = active.PREREQ[active.topFullTopic];
-  if(!prereqTopic){ startLesson(10); return; }
-  const bank = active.QUESTION_BANK[prereqTopic];
+  const level1 = active.PREREQ[active.topFullTopic];
+  if(!level1){ startLesson(10); return; }
+  askPrereqLevel(1, level1, null);
+}
+
+function askPrereqLevel(level, topic, brokenAbove){
+  const bank = active.QUESTION_BANK[topic];
   const raw = bank[0];
   const q = { prompt: raw.prompt, options: shuffle(raw.options) };
   stage.innerHTML = `
-    <div class="skill-chip">Diagnostic — one step underneath first</div>
-    <div class="prompt">Before we build practice on ${active.label.toLowerCase()}, one check on a step underneath it: ${active.TOPIC_TITLE[prereqTopic].toLowerCase()}.</div>
+    <div class="skill-chip">Diagnostic — checking prerequisites (${level} of ${MAX_PREREQ_LEVELS})</div>
+    <div class="prompt">Before we build practice on ${active.label.toLowerCase()}, one check on a step underneath it: ${active.TOPIC_TITLE[topic].toLowerCase()}.</div>
     <div class="prompt">${q.prompt}</div>
     ${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><span class="key">${"ABCD"[i]}</span><span>${o.h}</span></button>`).join("")}
     <div class="submit-row"><button class="btn" disabled>Submit</button></div>`;
   wireOptions(stage, (i) => {
     const o = q.options[i];
-    if(o.ok){ startLesson(10); }
-    else { startLesson(10, prereqTopic, true); }
+    if(o.ok){
+      if(brokenAbove){ startLesson(10, brokenAbove, true); }
+      else { startLesson(10); }
+      return;
+    }
+    const deeper = active.PREREQ[topic];
+    if(level < MAX_PREREQ_LEVELS && deeper){ askPrereqLevel(level+1, deeper, topic); }
+    else { startLesson(10, topic, true); }
   });
 }
 
