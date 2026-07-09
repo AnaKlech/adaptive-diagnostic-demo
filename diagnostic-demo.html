@@ -511,7 +511,7 @@ const MAX_PREREQ_LEVELS = 3;
 
 function renderPrereqCheck(){
   const level1 = active.PREREQ[active.topFullTopic];
-  if(!level1){ startLesson(10); return; }
+  if(!level1){ startLesson(10, null, false, true); return; }
   askPrereqLevel(1, level1, null);
 }
 
@@ -529,7 +529,7 @@ function askPrereqLevel(level, topic, brokenAbove){
     const o = q.options[i];
     if(o.ok){
       if(brokenAbove){ startLesson(10, brokenAbove, true); }
-      else { startLesson(10); }
+      else { startLesson(10, null, false, true); }
       return;
     }
     const deeper = active.PREREQ[topic];
@@ -541,10 +541,16 @@ function askPrereqLevel(level, topic, brokenAbove){
 function renderAppMismatch(){
   stage.innerHTML = `
     <div class="diag">
-      <span class="diag-cause ok">Good news</span>
-      <h2>You know this — something else might be off</h2>
-      <p>You got all ${DIAG_QUESTIONS} diagnostic questions right on <b>${active.label}</b>, but your recent practice scores in the app have been low. That mismatch usually points to something about the app itself — not your understanding.</p>
-      <textarea class="feedback-input" id="feedbackText" rows="4" placeholder="What's been going wrong? Confusing questions, a glitch, wording that didn't make sense — anything helps."></textarea>
+      <span class="diag-cause ok">Cause identified: careless errors</span>
+      <h2>You know this — the slips are the issue, not understanding</h2>
+      <p>You got all ${DIAG_QUESTIONS} diagnostic questions right on <b>${active.label}</b>, but your recent practice scores in the app have been low. That combination points to careless errors — rushing, misreading, or losing focus on questions you actually know — not a gap in understanding.</p>
+      <div class="steps-box"><b>A few things that help with careless errors</b><ol>
+        <li>Slow down on questions that look familiar — that's exactly when it's easiest to skim and misread.</li>
+        <li>Reread the question once before picking an answer, especially if it has a "not" or "except" in it.</li>
+        <li>Double check your answer against the question one more time before submitting.</li>
+      </ol></div>
+      <p>It seems you know <b>${active.label.toLowerCase()}</b> well, but there's still something causing low accuracy here. Please tell us what's difficult — is it the wording, the format, going too fast, something else? Your answer helps us fix the actual problem instead of re-teaching something you already know.</p>
+      <textarea class="feedback-input" id="feedbackText" rows="4" placeholder="What's making this hard? Confusing wording, going too fast, a glitch — anything helps."></textarea>
       <button class="btn" id="submitFeedback">Send feedback</button>
     </div>`;
   document.getElementById("submitFeedback").onclick = () => {
@@ -575,11 +581,12 @@ function mkSection(topic, size){
     mastered:false, regenCount:0, inserted:false };
 }
 
-function startLesson(size, topicOverride, cameFromPrereqCheck){
+function startLesson(size, topicOverride, cameFromPrereqCheck, conceptGap){
   const topic = topicOverride || active.topFullTopic;
   const sec = mkSection(topic, size);
   sec.offset = topicOverride ? (cameFromPrereqCheck ? 1 : 0) : DIAG_QUESTIONS; // skip questions already asked
   if(topicOverride) sec.inserted = true;
+  if(conceptGap) sec.conceptGap = true;
   LS = { sections: [sec], idx: 0, inProbe:false };
   renderGenerating("Generating your practice…",
     `${size} question${size>1?"s":""} on ${active.TOPIC_TITLE[topic]}`, renderLesson);
@@ -604,6 +611,7 @@ function renderLesson(){
   let banner = "";
   if(s.regenCount>0) banner = `<div class="banner regen">Regenerated with a different approach (attempt ${s.regenCount+1} of ${MAX_REGENS+1}) — a different explanation this time.</div>`;
   else if(s.inserted) banner = `<div class="banner insert">Plan adjusted — inserted prerequisite: ${s.title}.</div>`;
+  else if(s.conceptGap) banner = `<div class="banner insert">Prerequisites check out — this looks like a gap in the material itself, not something missing underneath.</div>`;
   const explanation = th.approaches[Math.min(s.regenCount, th.approaches.length-1)];
   const regenLabel = s.regenCount >= MAX_REGENS ? "Still don't understand? Book a coaching call" : "I don't understand, regenerate explanation";
   stage.innerHTML = `
