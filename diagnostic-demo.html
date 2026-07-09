@@ -611,7 +611,7 @@ function renderLesson(){
   let banner = "";
   if(s.regenCount>0) banner = `<div class="banner regen">Regenerated with a different approach (attempt ${s.regenCount+1} of ${MAX_REGENS+1}) — a different explanation this time.</div>`;
   else if(s.inserted) banner = `<div class="banner insert">Plan adjusted — inserted prerequisite: ${s.title}.</div>`;
-  else if(s.conceptGap) banner = `<div class="banner insert">Prerequisites check out — this looks like a gap in the material itself, not something missing underneath.</div>`;
+  else if(s.conceptGap) banner = `<div class="banner insert">Prerequisites check out — the material itself just didn't land, not something missing underneath.</div>`;
   const explanation = th.approaches[Math.min(s.regenCount, th.approaches.length-1)];
   const regenLabel = s.regenCount >= MAX_REGENS ? "Still don't understand? Book a coaching call" : "I don't understand, regenerate explanation";
   stage.innerHTML = `
