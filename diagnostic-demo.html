@@ -584,7 +584,7 @@ function mkSection(topic, size){
 function startLesson(size, topicOverride, cameFromPrereqCheck, conceptGap){
   const topic = topicOverride || active.topFullTopic;
   const sec = mkSection(topic, size);
-  sec.offset = topicOverride ? (cameFromPrereqCheck ? 1 : 0) : DIAG_QUESTIONS; // skip questions already asked
+  sec.offset = topicOverride ? (cameFromPrereqCheck ? 1 : 0) : DIAG_QUESTIONS; // start past questions already asked; a 10-question prereq bank wraps so the walk question re-appears last, as a post-instruction re-check
   if(topicOverride) sec.inserted = true;
   if(conceptGap) sec.conceptGap = true;
   LS = { sections: [sec], idx: 0, inProbe:false };
